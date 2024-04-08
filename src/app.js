@@ -36,8 +36,9 @@ mongoose
 app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Origin",
-    "https://main--borghisud.netlify.app/loginSuccess"
-  ); // only for production
+    "*" // only for production
+    // "http://localhost:5173" // for testing and dev
+  );
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
