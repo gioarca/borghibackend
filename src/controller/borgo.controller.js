@@ -8,7 +8,7 @@ const createBorgo = async (req, res) => {
     const borgo = await Borgo.create(req.body);
     res.status(200).json({ success: true, data: borgo });
   } catch (error) {
-    res.status(500).send({ error: err.message });
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -21,8 +21,8 @@ const getBorgo = async (req, res) => {
     // const borgo = await Borgo.find({ _id }).find({ name: name });
     // const borgo = await Borgo.findById(_id);
     res.status(200).json(borgo);
-  } catch {
-    res.status(500).json({ error: error.message });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -35,7 +35,7 @@ const getBorghi = async (req, res) => {
     const borgo = await Borgo.find({}).limit(limit).skip(offset);
     res.status(200).json(borgo);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -51,7 +51,7 @@ const updateBorgo = async (req, res) => {
     const updateBorgo = await Borgo.findById(id);
     res.status(200).json(updateBorgo);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -65,7 +65,7 @@ const deleteBorgo = async (req, res) => {
     }
     res.status(200).json({ message: "Borgo deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };
 

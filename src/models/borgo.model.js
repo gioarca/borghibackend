@@ -1,3 +1,4 @@
+const { link } = require("fs");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -30,17 +31,29 @@ const borgoSchema = new Schema({
     type: String,
     required: [true, "Please enter a nice House"],
   },
-  ospedale: {
+  hospital: {
     type: String,
     required: [true, "Please enter an hospital nearby"],
   },
-  comune: {
+  app: {
     type: String,
-    required: [true, "Please enter a comune website nearby"],
+    required: [true, "Please enter the app Io link"],
   },
-  scuole: {
+  school: {
     type: String,
-    required: [true, "Please enter a school nearby"],
+    required: [true, "Please enter a school website link"],
+  },
+  district: {
+    type: String,
+    required: [true, "Please enter a website of a district nearby"],
+  },
+  airport: {
+    type: String,
+    required: [true, "Please enter a maps link from the borgo"],
+  },
+  coworking: {
+    type: String,
+    // required: [true, "Please enter a maps link from the borgo"],
   },
 });
 
