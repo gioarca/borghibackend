@@ -20,7 +20,7 @@ const app = express();
 mongoose
   .connect(
     // `mongodb+srv://giorgioarcamone93:kLCWLlCoI6PwJRhi@borgoapi.y2jtmaz.mongodb.net/?retryWrites=true&w=majority&appName=BorgoAPI`
-    `mongodb+srv://borghisud:Exlus3m3QclQKjBl@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+    `mongodb+srv://${process.env.APP_CREDENTIALS}@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
     // { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
@@ -37,9 +37,7 @@ mongoose
 app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Origin",
-    "*"
-    // "http://localhost:5173/"
-    // "*" // only for production
+    "*" // only for production
   );
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
