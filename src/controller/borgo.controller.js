@@ -1,6 +1,6 @@
 const { model } = require("mongoose");
-const Borgo = require("../models/borgo.model.js");
 const { error } = require("console");
+const Borgo = require("../models/borgo.model.js");
 
 // Endpoint per aggiungere un borgo
 const createBorgo = async (req, res) => {
@@ -15,27 +15,65 @@ const createBorgo = async (req, res) => {
 // Endpoint per cercare un borgo inserito filtrarlo per nome e id
 const getBorgo = async (req, res) => {
   try {
-    // const { _id } = req.params;
-    const { _id, name } = req.params;
-    const borgo = await Borgo.findById({ _id });
-    // const borgo = await Borgo.find({ _id }).find({ name: name });
-    // const borgo = await Borgo.findById(_id);
+    const { _id } = req.params;
+    const borgo = await Borgo.findById(_id);
     res.status(200).json(borgo);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
 
-// Endpoint per mostrare tutti i borghi inseriti secondo i nomi e l'id
+// Funzione per ottenere i primi 5 borghi
+const getInitialFiveBorghi = async (req, res) => {
+  try {
+    let limit = parseInt(req.query.limit) || 5;
+    const borghi = await Borgo.find({}).limit(limit);
+    res.status(200).json({ success: true, data: borghi });
+  } catch (error) {
+    console.error("Errore durante il recupero dei borghi iniziali:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Endpoint per mostrare i borghi con paginazione
 const getBorghi = async (req, res) => {
   try {
     let { limit, offset } = req.query;
-    limit = parseInt(limit) || 100; // imposta un limite pari a 100 se non definito
-    offset = parseInt(offset) || 0; // imposta un limite pari a 0 se non definito
-    const borgo = await Borgo.find({}).limit(limit).skip(offset);
-    res.status(200).json(borgo);
+    limit = parseInt(limit) || 5; // imposta il limite a 5 se non definito
+    offset = parseInt(offset) || 0; // imposta l'offset a 0 se non definito
+    const totalBorghiCount = await Borgo.countDocuments(); // Conta il totale dei borghi
+    const borghi = await Borgo.find({}).limit(limit).skip(offset); // Ottieni i borghi con paginazione
+    res.status(200).json({
+      borghi,
+      currentPage: Math.floor(offset / limit) + 1, // Calcola la pagina corrente
+      totalPages: Math.ceil(totalBorghiCount / limit), // Calcola il numero totale di pagine
+      totalBorghi: totalBorghiCount,
+    });
   } catch (error) {
     res.status(500).send({ error: error.message });
+  }
+};
+
+// Rotta per ottenere i borghi aggiuntivi
+const loadMoreBorghi = async (req, res) => {
+  try {
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1; // Imposta la pagina predefinita a 1 se non specificata
+    limit = parseInt(limit) || 5; // Imposta il limite predefinito a 5 se non specificato
+
+    const totalBorghiCount = await Borgo.countDocuments(); // Conta il totale dei borghi
+    const skip = (page - 1) * limit; // Calcola quanti documenti saltare
+
+    const borghi = await Borgo.find({}).limit(limit).skip(skip); // Ottieni i borghi con paginazione
+
+    res.status(200).json({
+      borghi,
+      currentPage: page,
+      totalPages: Math.ceil(totalBorghiCount / limit),
+      totalBorghi: totalBorghiCount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -51,7 +89,8 @@ const updateBorgo = async (req, res) => {
     const updateBorgo = await Borgo.findById(id);
     res.status(200).json(updateBorgo);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    console.error("Error updating Borgo:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -75,4 +114,6 @@ module.exports = {
   getBorghi,
   updateBorgo,
   deleteBorgo,
+  getInitialFiveBorghi,
+  loadMoreBorghi,
 };

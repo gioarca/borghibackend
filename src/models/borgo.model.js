@@ -1,4 +1,3 @@
-const { link } = require("fs");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -53,7 +52,7 @@ const borgoSchema = new Schema({
   },
   coworking: {
     type: String,
-    // required: [true, "Please enter a maps link from the borgo"],
+    // Coworking is optional
   },
 });
 

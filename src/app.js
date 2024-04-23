@@ -7,12 +7,8 @@ const bodyParser = require("body-parser");
 const port = 3000;
 
 const Borgo = require("./models/borgo.model.js");
-const User = require("./models/user.model.js");
-const Order = require("./models/order.model.js");
 
 const borgoRoute = require("./v1/routes/borgo.route.js");
-const userRoute = require("./v1/routes/user.route.js");
-const orderRoute = require("./v1/routes/order.route.js");
 
 const app = express();
 
@@ -50,6 +46,4 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // routes
-app.use("/api/v1/borgo", borgoRoute);
-app.use("/api/v1/user", userRoute);
-app.use("/api/v1/order", orderRoute);
+app.use("/api/v1/borghi", borgoRoute);
