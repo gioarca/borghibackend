@@ -54,9 +54,9 @@ const generateNonce = () => {
 // });
 app.use(
   cors({
-    origin: "https://vicus.netlify.app",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Opzionale: specifica i metodi permessi
-    credentials: true, // Opzionale: consente di inviare cookie se necessario
+    origin: "*",
+    // methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Opzionale: specifica i metodi permessi
+    // credentials: true, // Opzionale: consente di inviare cookie se necessario
   })
 );
 
