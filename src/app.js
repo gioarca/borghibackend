@@ -37,21 +37,33 @@ const generateNonce = () => {
 };
 
 // middlewares
-app.use((req, res, next) => {
-  const nonce = generateNonce();
-  res.locals.nonce = nonce;
-  res.header(
-    "Access-Control-Allow-Origin",
-    "*" // only for production
-  );
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  res.header(
-    "Content-Security-Policy",
-    `default-src 'none'; script-src 'nonce-${nonce}'`
-  );
-  next();
-});
+// app.use((req, res, next) => {
+//   const nonce = generateNonce();
+//   res.locals.nonce = nonce;
+//   res.header(
+//     "Access-Control-Allow-Origin",
+//     "*" // only for production
+//   );
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+//   res.header("Access-Control-Allow-Headers", "Content-Type");
+//   res.header(
+//     "Content-Security-Policy",
+//     `default-src 'none'; script-src 'nonce-${nonce}'`
+//   );
+//   next();
+// });
+app.use(
+  cors({
+    origin: "https://vicus.netlify.app",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Opzionale: specifica i metodi permessi
+    credentials: true, // Opzionale: consente di inviare cookie se necessario
+  })
+);
+
+// app.get('/api/v1/borghi', (req, res) => {
+//   // Il tuo codice qui
+//   res.json({ message: 'CORS abilitato per vicus.netlify.app' });
+// });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mongoSanitize());
