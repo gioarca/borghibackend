@@ -10,17 +10,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
-    "express": "^4.18.3",
+    "express": "^4.19.2",
     "express-mongo-sanitize": "^2.2.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.4.0",
-    "mongoose": "^8.2.1",
+    "mongoose": "^8.4.4",
     "mongoose-paginate-v2": "^1.8.0",
     "node": "^21.7.1",
     "nodemon": "^3.1.0",
     "sinon": "^17.0.1",
+    "validator": "^13.12.0",
     "xss-clean": "^0.1.4"
   }
 }

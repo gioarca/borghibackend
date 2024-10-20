@@ -23,23 +23,11 @@ const getBorgo = async (req, res) => {
   }
 };
 
-// Funzione per ottenere i primi 5 borghi
-const getInitialFiveBorghi = async (req, res) => {
-  try {
-    let limit = parseInt(req.query.limit) || 5;
-    const borghi = await Borgo.find({}).limit(limit);
-    res.status(200).json({ success: true, data: borghi });
-  } catch (error) {
-    console.error("Errore durante il recupero dei borghi iniziali:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
 // Endpoint per mostrare i borghi con paginazione
 const getBorghi = async (req, res) => {
   try {
     let { limit, offset } = req.query;
-    limit = parseInt(limit) || 5; // imposta il limite a 5 se non definito
+    limit = parseInt(limit) || 15; // imposta il limite a 5 se non definito
     offset = parseInt(offset) || 0; // imposta l'offset a 0 se non definito
     const totalBorghiCount = await Borgo.countDocuments(); // Conta il totale dei borghi
     const borghi = await Borgo.find({}).limit(limit).skip(offset); // Ottieni i borghi con paginazione
@@ -114,6 +102,5 @@ module.exports = {
   getBorghi,
   updateBorgo,
   deleteBorgo,
-  getInitialFiveBorghi,
   loadMoreBorghi,
 };

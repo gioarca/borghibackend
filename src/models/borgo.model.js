@@ -10,6 +10,10 @@ const borgoSchema = new Schema({
     type: String,
     required: [true, "Please enter a location"],
   },
+  place_description: {
+    type: String,
+    required: [true, "Please enter where is the location"],
+  },
   description: {
     type: String,
     required: [true, "Please enter the description of the borgo"],
