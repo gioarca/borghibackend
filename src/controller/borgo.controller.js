@@ -27,7 +27,7 @@ const getBorgo = async (req, res) => {
 const getBorghi = async (req, res) => {
   try {
     let { limit, offset } = req.query;
-    limit = parseInt(limit) || 15; // imposta il limite a 5 se non definito
+    limit = parseInt(limit) || 50; // imposta il limite a 5 se non definito
     offset = parseInt(offset) || 0; // imposta l'offset a 0 se non definito
     const totalBorghiCount = await Borgo.countDocuments(); // Conta il totale dei borghi
     const borghi = await Borgo.find({}).limit(limit).skip(offset); // Ottieni i borghi con paginazione
