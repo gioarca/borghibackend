@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const { model } = require("mongoose");
+const { error } = require("console");
 
 //handle errors
 const handleErrors = (err) => {
@@ -40,27 +42,40 @@ const createToken = (id) => {
 };
 
 module.exports.signup_get = (req, res) => {
-  res.render("signup");
+  res.json({ message: "Signup page data or redirect instruction" });
 };
 
 module.exports.login_get = (req, res) => {
-  res.render("login");
+  // Invia una risposta JSON invece di renderizzare una pagina
+  res.json({ message: "Login page data or redirect instruction" });
 };
+
+// module.exports.signup_post = async (req, res) => {
+//   const { email, password } = req.body;
+//   console.log(email, password);
+//   res.send("new signup");
+
+//   try {
+//     const user = await User.create({ email, password });
+//     const token = createToken(user._id);
+//     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+//     res.status(200).json({ user: user._id });
+//   } catch (err) {
+//     const errors = handleErrors(err);
+//     res.status(400).json(errors);
+//     handleErrors(err);
+//   }
+// };
 
 module.exports.signup_post = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
-  // res.send("new signup");
 
   try {
     const user = await User.create({ email, password });
-    const token = createToken(user._id);
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(200).json({ user: user._id });
+    res.status(201).json(user);
   } catch (err) {
-    const errors = handleErrors(err);
-    res.status(400).json(errors);
-    handleErrors(err);
+    console.log(err);
+    res.status(400).send("error, user not created");
   }
 };
 

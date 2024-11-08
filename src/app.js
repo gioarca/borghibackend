@@ -7,13 +7,25 @@ const bodyParser = require("body-parser");
 const port = 3000;
 const Borgo = require("./models/borgo.model.js");
 const borgoRoute = require("./v1/routes/borgo.route.js");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
+const User = require("./models/user.model.js");
 const authRoutes = require("./v1/routes/auth.route.js");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const { requireAuth, checkUser } = require("./middleware/authMiddleware.js");
 
 const app = express();
+
+const i18n = require("i18n");
+
+i18n.configure({
+  locales: ["en", "it"],
+  directory: __dirname + "/locales",
+  defaultLocale: "en",
+  cookie: "lang",
+});
+
+app.use(i18n.init);
 
 // connessione al database
 mongoose
@@ -36,34 +48,30 @@ const generateNonce = () => {
   return require("crypto").randomBytes(16).toString("base64");
 };
 
-// middlewares
-// app.use((req, res, next) => {
-//   const nonce = generateNonce();
-//   res.locals.nonce = nonce;
-//   res.header(
-//     "Access-Control-Allow-Origin",
-//     "*" // only for production
-//   );
-//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-//   res.header("Access-Control-Allow-Headers", "Content-Type");
-//   res.header(
-//     "Content-Security-Policy",
-//     `default-src 'none'; script-src 'nonce-${nonce}'`
-//   );
-//   next();
-// });
-app.use(
-  cors({
-    origin: "*",
-    // methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Opzionale: specifica i metodi permessi
-    // credentials: true, // Opzionale: consente di inviare cookie se necessario
-  })
-);
+// middlewares metodo corretto!
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "*" // only for production
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  // res.header(
+  //   "Content-Security-Policy",
+  //   `default-src 'none'; script-src 'nonce-${nonce}'`
+  // );
+  next();
+});
 
-// app.get('/api/v1/borghi', (req, res) => {
-//   // Il tuo codice qui
-//   res.json({ message: 'CORS abilitato per vicus.netlify.app' });
-// });
+// cors utilizzato per tutte le entrate
+// app.use(
+//   cors({
+//     origin: "*",
+//     // methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Opzionale: specifica i metodi permessi
+//     // credentials: true, // Opzionale: consente di inviare cookie se necessario
+//   })
+// );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mongoSanitize());
