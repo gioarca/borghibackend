@@ -102,7 +102,7 @@
 // app.use(authRoutes);
 // app.get("*", checkUser);
 
-require("dotenv").config();
+// require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -135,7 +135,8 @@ app.use(i18n.init);
 // Connessione al database
 mongoose
   .connect(
-    `mongodb+srv://${process.env.APP_CREDENTIALS}@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=${process.env.APP_NAME}`, // Usa variabile d'ambiente per la connessione
+    // `mongodb+srv://${process.env.APP_CREDENTIALS}@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=${process.env.APP_NAME}`, // Usa variabile d'ambiente per la connessione
+    `mongodb+srv://borghisud:Exlus3m3QclQKjBl@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`, // Usa variabile d'ambiente per la connessione
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
@@ -161,11 +162,20 @@ app.use((req, res, next) => {
 
 // Configura CORS per la produzione
 app.use(
-  cors({
-    origin: "*", // NON Limita l'origine in produzione
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
+  (req, res, next) => {
+    res.header(
+      "Access-Control-Allow-Origin",
+      "*" // only for production
+    );
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    next();
+  }
+  // cors({
+  //   origin: "*", // NON Limita l'origine in produzione
+  //   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  //   credentials: true,
+  // })
 );
 
 // Middleware di sicurezza
