@@ -109,11 +109,12 @@ const cors = require("cors");
 const xss = require("xss-clean");
 const mongoSanitize = require("express-mongo-sanitize");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const { requireAuth, checkUser } = require("./middleware/authMiddleware.js");
 const i18n = require("i18n");
+const path = require("path");
 
 const Borgo = require("./models/borgo.model.js");
 const borgoRoute = require("./v1/routes/borgo.route.js");
@@ -209,6 +210,17 @@ app.get("/read-cookies", (req, res) => {
 app.get("/borghi", requireAuth, (req, res) => res.render("borghi"));
 app.use(authRoutes);
 app.get("*", checkUser);
+
+// Middleware per la gestione delle lingue
+app.use("/:lang(en|it)", (req, res, next) => {
+  const lang = req.params.lang || "en"; // Default a 'en'
+  req.translations = require(`./locales/${lang}.json`); // Carica le traduzioni
+  next();
+});
+
+app.get("/:lang(en|it)/home", (req, res) => {
+  res.render("app", { translations: req.translations });
+});
 
 // Middleware di gestione degli errori
 app.use((err, req, res, next) => {

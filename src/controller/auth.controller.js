@@ -50,7 +50,7 @@ module.exports.login_get = (req, res) => {
   res.json({ message: "Login page data or redirect instruction" });
 };
 
-// module.exports.signup_post = async (req, res) => {
+// module.exports.signup_post = async (req, res) => { // modo non corretto
 //   const { email, password } = req.body;
 //   console.log(email, password);
 //   res.send("new signup");
@@ -82,13 +82,18 @@ module.exports.signup_post = async (req, res) => {
 module.exports.login_post = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne(email);
+    const user = await User.findOne({ email: email });
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: "invalid credentials" });
     }
-    const token = createToken(user._id);
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(200).json({ user: user._id });
+    // const token = createToken(user._id);
+    // res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    // res.status(200).json({ user: user._id });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.status(200).json({ token });
+    console.log("you did it!");
   } catch (err) {
     const errors = handleErrors(err);
     res.status(400).json({ error: err.message });

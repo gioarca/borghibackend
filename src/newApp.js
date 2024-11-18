@@ -1,0 +1,76 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const xss = require("xss-clean");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const { requireAuth, checkUser } = require("./middleware/authMiddleware.js");
+const i18n = require("i18n");
+const path = require("path");
+const Borgo = require("./models/borgo.model.js");
+const borgoRoute = require("./v1/routes/borgo.route.js");
+const authRoutes = require("./v1/routes/auth.route.js");
+
+require("dotenv").config();
+const port = process.env.PORT || 3000;
+const app = express();
+
+// Security middleware
+app.use(helmet());
+app.use(xss());
+app.use(mongoSanitize());
+
+// i18n configuration
+i18n.configure({
+  locales: ["en", "it"],
+  directory: path.join(__dirname, "locales"),
+  defaultLocale: "en",
+  cookie: "lang",
+});
+app.use(i18n.init);
+
+// Database connection
+const mongoURI = process.env.MONGO_URI;
+mongoose
+  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("Connected to the database!");
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Connection failed!", error);
+  });
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+const translationRoute = require("./v1/routes/language.route.js");
+app.use("/api/v1/translations", translationRoute);
+
+// CORS
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production" ? "https://netlify.vicus.app" : "*",
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// Routes
+app.use("/api/v1/borghi", borgoRoute);
+app.use("/api/v1/auth", authRoutes);
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res
+    .status(err.status || 500)
+    .json({ error: err.message || "Internal Server Error" });
+});
