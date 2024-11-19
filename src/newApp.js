@@ -54,14 +54,15 @@ const translationRoute = require("./v1/routes/language.route.js");
 app.use("/api/v1/translations", translationRoute);
 
 // CORS
-const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production" ? "https://netlify.vicus.app" : "*",
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization",
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: "production" ? "https://vicus.netlify.app" : "*",
+//   methods: "GET,POST,PUT,DELETE",
+//   allowedHeaders: "Content-Type",
+//   credentials: true,
+// };
+// app.use(cors(corsOptions));
+
+app.use(cors());
 
 // Routes
 app.use("/api/v1/borghi", borgoRoute);
