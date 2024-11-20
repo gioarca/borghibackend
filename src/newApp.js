@@ -63,9 +63,10 @@ app.use("/api/v1/translations", translationRoute);
 // app.use(cors(corsOptions));
 
 const corsOptions = {
-  origin: "*", // Permetti il dominio del frontend, metodo corretto
+  origin: "https://vicus.netlify.app/", // Permetti il dominio del frontend, metodo corretto
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
