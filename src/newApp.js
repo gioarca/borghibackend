@@ -62,7 +62,24 @@ app.use("/api/v1/translations", translationRoute);
 // };
 // app.use(cors(corsOptions));
 
+const corsOptions = {
+  origin: "*", // Permetti il dominio del frontend, metodo corretto
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+};
+app.use(cors(corsOptions));
+
 app.use(cors());
+
+// app.use((req, res, next) => {
+//   res.header(
+//     "Access-Control-Allow-Origin",
+//     "http://localhost:3000/" // only for production
+//   );
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+//   res.header("Access-Control-Allow-Headers", "Content-Type");
+//   next();
+// });
 
 // Routes
 app.use("/api/v1/borghi", borgoRoute);

@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon src/newApp.js",
-    "build": "nodemon build src/newApp.js"
+    "build": "nodemon build src/newAwpp.js"
   },
   "author": "",
   "license": "ISC",
