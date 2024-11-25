@@ -34,7 +34,7 @@ app.use(i18n.init);
 // Database connection
 const mongoURI = process.env.MONGO_URI;
 mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(mongoURI)
   .then(() => {
     console.log("Connected to the database!");
     app.listen(port, () => {
