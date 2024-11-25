@@ -13,7 +13,7 @@ router.post("/login", authController.login_post);
 router.get("/logout", authController.logout_get);
 
 // Register route with VAT for admins
-router.post("/adminregistration", authAdminController.register);
+router.post("/adminsignup", authAdminController.signup);
 
 // Email verification route
 // router.get("/verify/:token", verifyEmail);

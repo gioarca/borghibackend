@@ -34,12 +34,12 @@ const handleErrors = (err) => {
   return errors;
 };
 
-const maxAge = 3 * 24 * 60 * 60;
-const createToken = (id) => {
-  return jwt.sign({ id }, "net ninja secret", {
-    expiresIn: maxAge,
-  });
-};
+// const maxAge = 3 * 24 * 60 * 60;
+// const createToken = (id) => {
+//   return jwt.sign({ id }, "net ninja secret", {
+//     expiresIn: maxAge,
+//   });
+// };
 
 module.exports.signup_get = (req, res) => {
   res.json({ message: "Signup page data or redirect instruction" });
@@ -84,7 +84,7 @@ module.exports.login_post = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: "invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
     // const token = createToken(user._id);
     // res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
