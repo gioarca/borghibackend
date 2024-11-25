@@ -34,7 +34,7 @@ app.use(i18n.init);
 // Database connection
 mongoose
   .connect(
-    `mongodb+srv://process.env.${APP_CREDENTIALS}@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+    `mongodb+srv://borghisud:Exlus3m3QclQKjBl@cluster0.xv1petb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
   )
   .then(() => {
     console.log("Connected to the database!");
