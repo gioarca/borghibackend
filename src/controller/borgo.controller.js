@@ -68,9 +68,10 @@ const loadMoreBorghi = async (req, res) => {
 // Endopoint per aggiornare un borgo
 const updateBorgo = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name } = req.body;
-    const borgo = await Borgo.findByIdAndUpdate(id, { name }, { new: true });
+    const { _id } = req.params;
+    // const { name } = req.body;
+    // const borgo = await Borgo.findByIdAndUpdate(_id, { name }, { new: true });
+    const borgo = await Borgo.findByIdAndUpdate(_id, { new: true });
     if (!borgo) {
       return res.status(404).json({ message: "Borgo not found" });
     }

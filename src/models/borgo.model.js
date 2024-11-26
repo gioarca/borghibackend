@@ -12,7 +12,7 @@ const borgoSchema = new Schema({
   },
   place_description: {
     type: String,
-    required: [true, "Please enter where is the location"],
+    // required: [true, "Please enter where is the location"],
   },
   description: {
     type: String,
