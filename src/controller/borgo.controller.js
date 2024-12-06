@@ -86,8 +86,8 @@ const updateBorgo = async (req, res) => {
 // Endopoint per cancellare un borgo
 const deleteBorgo = async (req, res) => {
   try {
-    const { id } = req.params;
-    const borgo = await Borgo.findByIdAndDelete(id);
+    const { _id } = req.params;
+    const borgo = await Borgo.findByIdAndDelete(_id);
     if (!borgo) {
       return res.status(404).json({ message: "Borgo not found!" }); // aggiunto un return
     }
