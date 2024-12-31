@@ -8,7 +8,7 @@ const {
   updateBorgo,
   deleteBorgo,
   loadMoreBorghi,
-} = require("../../controller/borgo.controller.js");
+} = require("../../controllers/borgo.controller.js");
 
 router.post("/", createBorgo);
 router.get("/:_id", getBorgo); // ricerca per nome o per _id

@@ -1,61 +1,66 @@
-// const mongoose = require("mongoose");
-// const { Schema } = mongoose;
-// const { isEmail } = require("validator");
-// const { bcrypt } = require("bcryptjs");
-
-// const UserSchema = new Schema({
-//   email: {
-//     type: String,
-//     required: [true, "Please enter an email"],
-//     unique: true,
-//     lowercase: true,
-//     validate: [isEmail, "Please enter a valid email"],
-//   },
-//   password: {
-//     type: String,
-//     required: [true, "Please enter a password"],
-//     minlength: [6, "Minimum password length is 6 characters"],
-//   },
-// });
-
-// // fire a function before doc saved to db
-// UserSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-//   // const salt = await bcrypt.genSalt(10);
-//   this.password = await bcrypt.hash(this.password, 10);
-//   next();
-// });
-
-// // fire a function after doc saved to db
-// UserSchema.post("save", function (doc, next) {
-//   console.log("new user was created & saved", doc);
-//   next();
-// });
-
-// // static method to login user
-// UserSchema.statics.login = async function (email, password) {
-//   const user = await this.findOne({ email });
-//   if (user) {
-//     const auth = await bcrypt.compare(password, user.password);
-//     if (auth) {
-//       return user;
-//     }
-//     throw Error("incorrect password");
-//   }
-//   throw Error("incorrect email");
-// };
-
-// const User = mongoose.model("User", UserSchema);
-
-// module.exports = User;
-
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs"); // Use bcryptjs, not bcrypt
 
-const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
+const UserSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: [true, "Your name is required"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Your last name is required"],
+    },
+    taxId: {
+      type: String,
+      required: [true, "Your TaxID is required"],
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Your email address is required"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Your password is required"],
+    },
+    phoneNumber: {
+      type: String,
+      default: "",
+    },
+    profilePicture: {
+      type: String,
+      default:
+        "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg",
+    },
+    createdAt: {
+      type: Date,
+      default: new Date(),
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorSecret: {
+      type: String,
+      default: "",
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
@@ -78,3 +83,21 @@ UserSchema.methods.comparePassword = function (candidatePassword) {
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
+
+// userSchema.methods.checkExistingVisits = async function (visitDate) {
+//   try {
+//     const startTime = visitDate.toISOString();
+//     const endTime = new Date(visitDate.getTime() + 60 * 60000).toISOString();
+
+//     const existingVisits = await this.model("Visit").find({
+//       user: this._id,
+//       startTime: { $lt: endTime },
+//       endTime: { $gt: startTime },
+//     });
+
+//     return existingVisits.length > 0;
+//   } catch (error) {
+//     console.error("Error checking existing visits:", error);
+//     throw error;
+//   }
+// };

@@ -4,12 +4,12 @@ const cors = require("cors");
 const xss = require("xss-clean");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const { requireAuth, checkUser } = require("./middleware/authMiddleware.js");
 const i18n = require("i18n");
 const path = require("path");
-const Borgo = require("./models/borgo.model.js");
+// const Borgo = require("./models/borgo.model.js");
 const borgoRoute = require("./v1/routes/borgo.route.js");
 const authRoutes = require("./v1/routes/auth.route.js");
 
