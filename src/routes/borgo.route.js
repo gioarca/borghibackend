@@ -1,5 +1,5 @@
 const express = require("express");
-const Borgo = require("../../models/borgo.model.js");
+const Borgo = require("../models/borgo.model.js");
 const router = express.Router();
 const {
   createBorgo,
@@ -8,7 +8,7 @@ const {
   updateBorgo,
   deleteBorgo,
   loadMoreBorghi,
-} = require("../../controllers/borgo.controller.js");
+} = require("../controllers/borgo.controller.js");
 
 router.post("/", createBorgo);
 router.get("/:_id", getBorgo); // ricerca per nome o per _id

@@ -1,17 +1,13 @@
 const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const jwt = require("jsonwebtoken");
-const { model } = require("mongoose");
-const { error } = require("console");
+const Model = require("mongoose");
+const error = require("console");
 const bcryptjs = require("bcryptjs");
-const { errorHandler } = require("../utils/error.js");
+const errorHandler = require("../utils/error.js");
 const { validationResult } = require("express-validator");
-const {
-  generateResetToken,
-} = require("../utils/passwordReset/generateResetToken.js");
-const {
-  sendResetPasswordEmail,
-} = require("../utils/passwordReset/sendResetPasswordEmail.js");
+const generateResetToken = require("../utils/passwordReset/generateResetToken.js");
+const sendResetPasswordEmail = require("../utils/passwordReset/sendResetPasswordEmail.js");
 const verifyOTP = require("../utils/auth/verifyOTP.js");
 const generateTokenPayload = require("../utils/auth/generateTokenPayload.js");
 const speakeasy = require("speakeasy");
@@ -105,7 +101,7 @@ const signUp = async (req, res, next) => {
       firstName,
       lastName,
       email,
-      taxId,
+      // taxId,
       password,
       confirmPassword,
       phoneNumber,
@@ -125,13 +121,17 @@ const signUp = async (req, res, next) => {
       });
     }
 
-    const existingTaxId = await User.findOne({ taxId });
+    // const existingTaxId = await User.findOne({ taxId });
     const existingUser = await User.findOne({ email });
 
-    if (existingUser || existingTaxId) {
-      return res
-        .status(409)
-        .json({ message: "User with the same TaxID or email already exists" });
+    // if (existingUser || existingTaxId) {
+    if (existingUser) {
+      return (
+        res
+          .status(409)
+          // .json({ message: "User with the same TaxID or email already exists" });
+          .json({ message: "User with the same email already exists" })
+      );
     }
 
     const hashedPassword = bcryptjs.hashSync(password, 10);
@@ -139,7 +139,7 @@ const signUp = async (req, res, next) => {
       firstName,
       lastName,
       email,
-      taxId,
+      // taxId,
       password: hashedPassword,
       phoneNumber,
       profilePicture,
@@ -168,13 +168,14 @@ const signIn = async (req, res, next, Model) => {
     }
 
     const { email, password, twoFactorCode } = req.body;
-    const validUser = await Model.findOne({ email });
+    const validUser = await User.findOne({ email });
+    // const userPassword = validUser ? validUser.password : null;
 
     if (!validUser) {
       return res.status(404).json({ message: `${Model.modelName} not found` });
     }
-
-    const validPassword = bcryptjs.compareSync(password, validUser.password);
+    // const hashedPassword = bcryptjs.hashSync(password, 10);
+    const validPassword = bcryptjs.compare(password, validUser.password); // validUser.password;
     if (!validPassword) {
       return res.status(401).json({
         message: "Wrong credentials. Please check your email and password.",
@@ -388,7 +389,8 @@ const passwordResetRequest = async (req, res, next, Model) => {
       .json({ message: "Password reset email sent successfully", resetToken });
   } catch (err) {
     console.log(err);
-    next(errorHandler(500, "Internal Server Error"));
+    // next(errorHandler(500, "Internal Server Error"));
+    res.status(500).send({ error: error.message });
   }
 };
 

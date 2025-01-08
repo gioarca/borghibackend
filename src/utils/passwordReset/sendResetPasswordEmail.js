@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
 
 const sendResetPasswordEmail = async (email, resetToken, Model) => {
+  dotenv.config();
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -12,7 +14,7 @@ const sendResetPasswordEmail = async (email, resetToken, Model) => {
 
     const baseURL =
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3000"
+        ? "http://localhost:5173"
         : "https://vicus.netlify.app/";
     const resetTokenLink = `${baseURL}/${Model.modelName.toLowerCase()}/password-reset/${resetToken}`;
 

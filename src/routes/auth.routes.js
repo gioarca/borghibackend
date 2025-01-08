@@ -16,14 +16,14 @@ router.post(
       .escape()
       .withMessage("First name is required"),
     check("lastName").notEmpty().escape().withMessage("Last name is required"),
-    check("taxId")
-      .notEmpty()
-      .withMessage("Valid TaxID is required")
-      .isLength({ min: 16, max: 16 })
-      .withMessage("TaxID must be exactly 16 characters")
-      .isAlphanumeric()
-      .withMessage("TaxID must contain only alphanumeric characters")
-      .escape(),
+    // check("taxId")
+    //   .notEmpty()
+    //   .withMessage("Valid TaxID is required")
+    //   .isLength({ min: 16, max: 16 })
+    //   .withMessage("TaxID must be exactly 16 characters")
+    //   .isAlphanumeric()
+    //   .withMessage("TaxID must contain only alphanumeric characters")
+    //   .escape(),
     check("email")
       .notEmpty()
       .isEmail()
