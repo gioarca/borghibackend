@@ -85,10 +85,10 @@ const adminRoutes = require("./routes/admin.routes.js");
 const userRoutes = require("./routes/user.routes.js");
 const authRoutes = require("./routes/auth.routes.js");
 const borgoRoute = require("./routes/borgo.route.js");
-const languageRoute = require("./routes/language.route.js");
+// const languageRoute = require("./routes/language.route.js");
 
 app.use("/", authRoutes);
-app.use("/", languageRoute);
+// app.use("/", languageRoute);
 app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
 app.use("/borghi", borgoRoute);
