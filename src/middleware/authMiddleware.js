@@ -48,18 +48,6 @@ const cloudinaryMiddleware = async (req, res, next) => {
       req.body.profilePicture = profilePictureResult.secure_url;
     }
 
-    if (req.body.invoiceFile) {
-      const invoiceFileResult = await cloudinary.uploader.upload(
-        req.body.invoiceFile,
-        {
-          folder: "invoices",
-          allowed_formats: ["pdf"],
-        }
-      );
-
-      req.body.invoiceFile = invoiceFileResult.secure_url;
-    }
-
     next();
   } catch (err) {
     console.log(err);
