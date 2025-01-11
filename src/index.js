@@ -51,7 +51,6 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./connection/db.js");
-const config = require("config");
 
 dotenv.config();
 
@@ -66,7 +65,7 @@ if (process.env.NODE_ENV === "development") {
     })
   );
   connectDB(); // Connessione al database locale
-} else {
+} else if (process.env.NODE_ENV === "production") {
   app.use(
     cors({
       origin: "https://vicus.netlify.app/",
