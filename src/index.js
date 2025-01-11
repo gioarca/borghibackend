@@ -51,6 +51,7 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./connection/db.js");
+const config = require("./config");
 
 dotenv.config();
 
