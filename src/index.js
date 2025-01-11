@@ -57,7 +57,7 @@ dotenv.config();
 const app = express();
 
 // Configurazione CORS
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV_DEV) {
   app.use(
     cors({
       origin: "http://localhost:5173",
@@ -65,7 +65,7 @@ if (process.env.NODE_ENV === "development") {
     })
   );
   connectDB(); // Connessione al database locale
-} else if (process.env.NODE_ENV === "production") {
+} else if (process.env.NODE_ENV_PROD) {
   app.use(
     cors({
       origin: "https://vicus.netlify.app/",
