@@ -1,6 +1,6 @@
-const { model } = require("mongoose");
+const Model = require("mongoose");
 const { error } = require("console");
-const Borgo = require("../models/borgo.model.js");
+const Borgo = require("../models/borgo.model");
 
 // Endpoint per aggiungere un borgo
 const createBorgo = async (req, res) => {
