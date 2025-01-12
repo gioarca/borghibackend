@@ -38,7 +38,7 @@ const getBorghi = async (req, res) => {
   //     totalBorghi: totalBorghiCount,
   //   });
   try {
-    const borghi = await Borgo.find({});
+    const borghi = await Borgo.find();
     res.status(200).json(borghi);
   } catch (error) {
     res.status(500).send({ error: error.message });
