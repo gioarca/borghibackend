@@ -51,10 +51,11 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./connection/db.js");
+const app = express();
+const mongoose = require("mongoose");
+// const { it } = require("date-fns/locale");
 
 dotenv.config();
-
-const app = express();
 
 // Configurazione CORS
 if (process.env.NODE_ENV_DEV) {
@@ -65,14 +66,23 @@ if (process.env.NODE_ENV_DEV) {
     })
   );
   connectDB(); // Connessione al database locale
-} else if (process.env.NODE_ENV_PROD) {
+} else {
   app.use(
     cors({
       origin: "https://vicus.netlify.app/",
       credentials: true,
     })
   );
-  connectDB(); // Connessione al database di produzione
+  function connect() {
+    const uri = process.env.MONGODB_URI;
+    mongoose
+      .connect(`${uri}/?retryWrites=true&w=majority&appName=Cluster0`, {
+        serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
+      })
+      .then(() => console.log(`Connected to the database!`))
+      .catch((error) => console.error(`Error: ${error.message}`));
+  }
+  connect(); // Connessione al database di produzione
 }
 
 // Middleware
