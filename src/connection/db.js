@@ -4,9 +4,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 function connectDB() {
-  const URI = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI;
   mongoose
-    .connect(`${URI}/?retryWrites=true&w=majority&appName=Cluster0`)
+    .connect(`${uri}/?retryWrites=true&w=majority&appName=Cluster0`, {
+      serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
+    })
     .then(() => console.log(`Connected to the database!`))
     .catch((error) => console.error(`Error: ${error.message}`));
 }

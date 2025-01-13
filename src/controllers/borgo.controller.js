@@ -25,21 +25,21 @@ const getBorgo = async (req, res) => {
 
 // Endpoint per mostrare i borghi con paginazione
 const getBorghi = async (req, res) => {
-  // try {
-  //   let { limit, offset } = req.query;
-  //   limit = parseInt(limit) || 50; // imposta il limite a 5 se non definito
-  //   offset = parseInt(offset) || 0; // imposta l'offset a 0 se non definito
-  //   const totalBorghiCount = await Borgo.countDocuments(); // Conta il totale dei borghi
-  //   const borghi = await Borgo.find({}).limit(limit).skip(offset); // Ottieni i borghi con paginazione
-  //   res.status(200).json({
-  //     borghi,
-  //     currentPage: Math.floor(offset / limit) + 1, // Calcola la pagina corrente
-  //     totalPages: Math.ceil(totalBorghiCount / limit), // Calcola il numero totale di pagine
-  //     totalBorghi: totalBorghiCount,
-  //   });
   try {
-    const borghi = await Borgo.find();
-    res.status(200).json(borghi);
+    let { limit, offset } = req.query;
+    limit = parseInt(limit) || 50; // imposta il limite a 5 se non definito
+    offset = parseInt(offset) || 0; // imposta l'offset a 0 se non definito
+    const totalBorghiCount = await Borgo.countDocuments(); // Conta il totale dei borghi
+    const borghi = await Borgo.find({}).limit(limit).skip(offset); // Ottieni i borghi con paginazione
+    res.status(200).json({
+      borghi,
+      currentPage: Math.floor(offset / limit) + 1, // Calcola la pagina corrente
+      totalPages: Math.ceil(totalBorghiCount / limit), // Calcola il numero totale di pagine
+      totalBorghi: totalBorghiCount,
+    });
+    // try {
+    //   const borghi = await Borgo.find();
+    //   res.status(200).json(borghi);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
