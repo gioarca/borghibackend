@@ -76,7 +76,7 @@ if (process.env.NODE_ENV_DEV) {
   function connect() {
     const uri = process.env.MONGODB_URI;
     mongoose
-      .connect(`${uri}/?retryWrites=true&w=majority&appName=Cluster0`, {
+      .connect(`${uri}`, {
         serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
       })
       .then(() => console.log(`Connected to the database!`))
