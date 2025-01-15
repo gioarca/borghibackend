@@ -68,7 +68,7 @@ if (process.env.NODE_ENV === "development") {
 } else {
   app.use(
     cors({
-      origin: "https://vicus.netlify.app/",
+      origin: "https://vicus.netlify.app",
       credentials: true,
     })
   );
