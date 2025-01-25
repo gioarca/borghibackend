@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 
+dotenv.config();
+
 const sendUserAuthEmail = async (userEmail, token) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -13,8 +15,6 @@ const sendUserAuthEmail = async (userEmail, token) => {
         pass: process.env.GMAIL_PSW_APP,
       },
     });
-
-    dotenv.config();
 
     const baseURL =
       process.env.NODE_ENV === "development"
