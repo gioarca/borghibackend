@@ -1,0 +1,128 @@
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const AdminSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: [true, "Name is required"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Last name is required"],
+    },
+    taxId: {
+      type: String,
+      required: [true, "Your TaxID is required"],
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: [true, "An email address is required"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "A password is required"],
+    },
+    phoneNumber: {
+      type: String,
+      required: [true, "Phone number is required"],
+    },
+    specialization: {
+      type: String,
+      required: [true, "Specialization is required"],
+    },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+    },
+    about: {
+      type: String,
+      default: "",
+    },
+    profilePicture: {
+      type: String,
+      default:
+        "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg",
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    twoFactorSecret: {
+      type: String,
+      default: "",
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    // workShifts: {
+    //   type: [workShiftSchema],
+    //   default: [
+    //     { dayOfWeek: "Monday" },
+    //     { dayOfWeek: "Tuesday" },
+    //     { dayOfWeek: "Wednesday" },
+    //     { dayOfWeek: "Thursday" },
+    //     { dayOfWeek: "Friday" },
+    //     { dayOfWeek: "Saturday", endTime: "12:00" },
+    //   ],
+    // },
+    leaveRequests: {
+      type: [
+        {
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+          typology: {
+            type: String,
+            required: true,
+          },
+          startDate: {
+            type: Date,
+            required: true,
+          },
+          endDate: {
+            type: Date,
+            required: true,
+          },
+          isApproved: {
+            type: Boolean,
+            default: null,
+          },
+        },
+      ],
+      default: [],
+    },
+  },
+  { timestamps: true }
+);
+
+// Hash password before saving
+AdminSchema.pre("save", async function (next) {
+  // Check if the password has been modified
+  if (!this.isModified("password")) return next();
+
+  try {
+    // Hash the password with a salt of 10 rounds
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    next(error); // Pass any errors to the next middleware
+  }
+});
+
+// Compare Passwords
+AdminSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+const Admin = mongoose.model("Admin", AdminSchema);
+module.exports = Admin;
