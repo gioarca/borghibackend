@@ -13,7 +13,7 @@ export const sendWelcomeEmail = async (email, password, token) => {
 
     const baseURL =
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3000"
+        ? "http://localhost:5173"
         : "https://vicus.netlify.app/";
     const verifyEmailLink = `${baseURL}/admin/verify-email/${token}`;
 

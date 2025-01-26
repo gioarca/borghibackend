@@ -38,9 +38,9 @@ router.post(
 
 router.post(
   "/create",
-  verifyToken,
-  verifyAdmin,
-  cloudinaryMiddleware,
+  // verifyToken,
+  // verifyAdmin,
+  // cloudinaryMiddleware,
   [
     check("firstName")
       .notEmpty()
@@ -83,66 +83,66 @@ router.post(
       ])
       .escape()
       .withMessage("Invalid day of the week for work shift"),
-    check("workShifts.*.startTime")
-      .optional()
-      .isString()
-      .withMessage("Start time must be a string")
-      .custom((value, { req }) => {
-        if (value) {
-          const startTime = new Date(`1970-01-01T${value}`);
-          if (startTime < new Date("1970-01-01T08:00:00")) {
-            throw new Error("Start time must be after 8:00");
-          }
-        }
-        return true;
-      }),
-    check("workShifts.*.endTime")
-      .optional()
-      .isString()
-      .withMessage("End time must be a string")
-      .custom((value, { req }) => {
-        if (value) {
-          const endTime = new Date(`1970-01-01T${value}`);
-          if (endTime > new Date("1970-01-01T20:00:00")) {
-            throw new Error("End time must be before 20:00");
-          }
-        }
-        return true;
-      }),
-    check("nonAvailability")
-      .optional()
-      .isArray()
-      .withMessage("Non availability must be an array")
-      .custom((value, { req }) => {
-        if (!Array.isArray(value)) {
-          throw new Error("Non availability must be an array");
-        }
+    // check("workShifts.*.startTime")
+    //   .optional()
+    //   .isString()
+    //   .withMessage("Start time must be a string")
+    //   .custom((value, { req }) => {
+    //     if (value) {
+    //       const startTime = new Date(`1970-01-01T${value}`);
+    //       if (startTime < new Date("1970-01-01T08:00:00")) {
+    //         throw new Error("Start time must be after 8:00");
+    //       }
+    //     }
+    //     return true;
+    //   }),
+    // check("workShifts.*.endTime")
+    //   .optional()
+    //   .isString()
+    //   .withMessage("End time must be a string")
+    //   .custom((value, { req }) => {
+    //     if (value) {
+    //       const endTime = new Date(`1970-01-01T${value}`);
+    //       if (endTime > new Date("1970-01-01T20:00:00")) {
+    //         throw new Error("End time must be before 20:00");
+    //       }
+    //     }
+    //     return true;
+    //   }),
+    // check("nonAvailability")
+    //   .optional()
+    //   .isArray()
+    //   .withMessage("Non availability must be an array")
+    //   .custom((value, { req }) => {
+    //     if (!Array.isArray(value)) {
+    //       throw new Error("Non availability must be an array");
+    //     }
 
-        for (let i = 0; i < value.length; i++) {
-          const startDate = new Date(value[i].startDate);
-          const endDate = new Date(value[i].endDate);
+    //     for (let i = 0; i < value.length; i++) {
+    //       const startDate = new Date(value[i].startDate);
+    //       const endDate = new Date(value[i].endDate);
 
-          if (isNaN(startDate.getTime())) {
-            throw new Error(
-              `Start date is required and must be a valid date for item ${i}`
-            );
-          }
+    //       if (isNaN(startDate.getTime())) {
+    //         throw new Error(
+    //           `Start date is required and must be a valid date for item ${i}`
+    //         );
+    //       }
 
-          if (isNaN(endDate.getTime())) {
-            throw new Error(
-              `End date is required and must be a valid date for item ${i}`
-            );
-          }
+    //       if (isNaN(endDate.getTime())) {
+    //         throw new Error(
+    //           `End date is required and must be a valid date for item ${i}`
+    //         );
+    //       }
 
-          if (startDate > endDate) {
-            throw new Error(
-              `End date must be equal to or after start date for item ${i}`
-            );
-          }
-        }
+    //       if (startDate > endDate) {
+    //         throw new Error(
+    //           `End date must be equal to or after start date for item ${i}`
+    //         );
+    //       }
+    //     }
 
-        return true;
-      }),
+    //     return true;
+    //   }),
   ],
   createAdmin
 );

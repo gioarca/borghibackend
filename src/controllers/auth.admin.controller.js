@@ -6,7 +6,7 @@ const bcryptjs = require("bcryptjs");
 const dotenv = require("dotenv");
 const { errorHandler } = require("../utils/error.js");
 const { validationResult } = require("express-validator");
-const { sendWelcomeEmail } = require("../utils/doctors/doctorWelcomeEmail.js");
+const { sendWelcomeEmail } = require("../utils/admins/adminWelcomeEmail.js");
 
 // const {
 //   generateRandomPassword,
@@ -30,6 +30,7 @@ const { sendWelcomeEmail } = require("../utils/doctors/doctorWelcomeEmail.js");
 
 // Register a new user, with VAT check for admins
 const createAdmin = async (req, res, next) => {
+  dotenv.config();
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -45,15 +46,29 @@ const createAdmin = async (req, res, next) => {
       profilePicture,
       about,
       phoneNumber,
-      workShifts,
+      password,
+      confirmPassword,
+      // workShifts,
     } = req.body;
 
-    const existingTaxId = await Doctor.findOne({ taxId });
-    const existingDoctor = await Doctor.findOne({ email });
+    const existingTaxId = await Admin.findOne({ taxId });
+    const existingAdmin = await Admin.findOne({ email });
 
-    if (existingDoctor || existingTaxId) {
+    if (existingAdmin || existingTaxId) {
       return res.status(409).json({
         message: "An Admin with the same TaxId or email already exists",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must contain at least one lowercase letter, one uppercase letter, and one number",
       });
     }
 
@@ -117,7 +132,7 @@ const getAdminProfile = async (req, res, next) => {
     const admin = await Admin.findById(userId);
 
     if (!admin) {
-      return res.status(404).json({ message: "doctor not found." });
+      return res.status(404).json({ message: "admin not found" });
     }
 
     const { password, ...rest } = admin._doc;
