@@ -54,7 +54,6 @@ const updateUser = async (req, res, next) => {
       email,
       password,
       confirmPassword,
-      // taxId,
       phoneNumber,
       profilePicture,
     } = req.body;
@@ -64,16 +63,6 @@ const updateUser = async (req, res, next) => {
 
     if (firstName) updateFields.firstName = firstName;
     if (lastName) updateFields.lastName = lastName;
-
-    // if (taxId) {
-    //   const existingTaxId = await User.findOne({
-    //     taxId,
-    //     _id: { $ne: req.params.id },
-    //   });
-    //   if (existingTaxId)
-    //     return res.status(409).json({ message: "TaxId already exists" });
-    //   updateFields.taxId = taxId;
-    // }
 
     if (email) {
       const existingEmail = await User.findOne({
