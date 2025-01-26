@@ -14,84 +14,6 @@ const generateTokenPayload = require("../utils/auth/generateTokenPayload.js");
 const speakeasy = require("speakeasy");
 const sendUserAuthEmail = require("../utils/auth/sendUserAuthEmail.js");
 
-//handle errors
-// const handleErrors = (err) => {
-//   console.log(err.message, err.code);
-//   let errors = { email: "", password: "" };
-
-//   //incorrect email
-//   if (err.message === "incorrect email") {
-//     errors.email = "that email is not registered";
-//   }
-//   //incorrect password
-//   if (err.message === "incorrect password") {
-//     errors.password = "that password is incorrect";
-//   }
-
-//   // duplicate error code
-//   if (err.code === 11000) {
-//     errors.email = "that email is already registered";
-//     return errors;
-//   }
-
-//   //validation errors
-//   if (err.message.includes("user validation failed")) {
-//     Object.values(err.errors).forEach(({ properties }) => {
-//       console.log(properties);
-//       errors[properties.path] = properties.message;
-//     });
-//   }
-
-//   return errors;
-// };
-
-// module.exports.signup_get = (req, res) => {
-//   res.json({ message: "Signup page data or redirect instruction" });
-// };
-
-// module.exports.login_get = (req, res) => {
-//   // Invia una risposta JSON invece di renderizzare una pagina
-//   res.json({ message: "Login page data or redirect instruction" });
-// };
-
-// module.exports.signup_post = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = new User({ email, password });
-//     await user.save();
-//     res.status(201).json(user);
-//   } catch (err) {
-//     console.log(err);
-//     res.status(400).send("error, user not created");
-//   }
-// };
-
-// module.exports.login_post = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = await User.findOne({ email: email });
-//     if (!user || !(await user.comparePassword(password))) {
-//       return res.status(401).json({ message: "Invalid credentials" });
-//     }
-//     // const token = createToken(user._id);
-//     // res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-//     // res.status(200).json({ user: user._id });
-//     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-//       expiresIn: "1h",
-//     });
-//     res.status(200).json({ token });
-//     console.log("you did it!");
-//   } catch (err) {
-//     const errors = handleErrors(err);
-//     res.status(400).json({ error: err.message });
-//   }
-// };
-
-// module.exports.logout_get = (req, res) => {
-//   res.cookie("jwt", "", { maxAge: 1 });
-//   res.redirect("/signout");
-// };
-
 const signUp = async (req, res, next) => {
   dotenv.config();
   try {
@@ -103,7 +25,6 @@ const signUp = async (req, res, next) => {
       firstName,
       lastName,
       email,
-      // taxId,
       password,
       confirmPassword,
       phoneNumber,
@@ -123,17 +44,12 @@ const signUp = async (req, res, next) => {
       });
     }
 
-    // const existingTaxId = await User.findOne({ taxId });
     const existingUser = await User.findOne({ email });
 
-    // if (existingUser || existingTaxId) {
     if (existingUser) {
-      return (
-        res
-          .status(409)
-          // .json({ message: "User with the same TaxID or email already exists" });
-          .json({ message: "User with the same email already exists" })
-      );
+      return res
+        .status(409)
+        .json({ message: "User with the same email already exists" });
     }
 
     const hashedPassword = bcryptjs.hashSync(password, 10);
@@ -141,7 +57,6 @@ const signUp = async (req, res, next) => {
       firstName,
       lastName,
       email,
-      // taxId,
       password: hashedPassword,
       phoneNumber,
       profilePicture,

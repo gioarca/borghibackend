@@ -11,11 +11,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Your last name is required"],
     },
-    // taxId: {
-    //   type: String,
-    //   required: [true, "Your TaxID is required"],
-    //   unique: true,
-    // },
     email: {
       type: String,
       required: [true, "Your email address is required"],

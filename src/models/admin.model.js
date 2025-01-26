@@ -63,17 +63,7 @@ const AdminSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // workShifts: {
-    //   type: [workShiftSchema],
-    //   default: [
-    //     { dayOfWeek: "Monday" },
-    //     { dayOfWeek: "Tuesday" },
-    //     { dayOfWeek: "Wednesday" },
-    //     { dayOfWeek: "Thursday" },
-    //     { dayOfWeek: "Friday" },
-    //     { dayOfWeek: "Saturday", endTime: "12:00" },
-    //   ],
-    // },
+
     leaveRequests: {
       type: [
         {
