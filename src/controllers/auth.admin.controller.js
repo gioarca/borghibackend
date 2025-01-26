@@ -1,131 +1,35 @@
-const Admin = require("../models/admin.model.js");
-const bcrypt = require("bcryptjs");
+const Admin = require("../models/admin.model");
 const jwt = require("jsonwebtoken");
+const Model = require("mongoose");
+const error = require("console");
+const bcryptjs = require("bcryptjs");
+const dotenv = require("dotenv");
 const { errorHandler } = require("../utils/error.js");
 const { validationResult } = require("express-validator");
-const {
-  generateRandomPassword,
-} = require("../utils/auth/generateRandomPsw.js");
-// const Visit = require("../models/visitModel.js");
-const User = require("../models/user.model.js");
-const {
-  sendVisitCancellationEmail,
-} = require("../utils/visits/visitCancellationEmail.js");
-const { startOfDay, addDays, addHours } = require("date-fns");
-const moment = require("moment");
 const { sendWelcomeEmail } = require("../utils/doctors/doctorWelcomeEmail.js");
-const {
-  sendLeaveApprovalEmail,
-  sendLeaveDeclinalEmail,
-  sendNewLeaveRequestEmailToAdmin,
-} = require("../utils/doctors/leaveManagementEmails.js");
-const {
-  checkDuplicateLeaveRequests,
-  validateLeaveRequests,
-} = require("../utils/doctors/leaveRequests.js");
 
-//handle errors
-// const handleErrors = (err) => {
-//   console.log(err.message, err.code);
-//   let errors = { email: "", password: "" };
+// const {
+//   generateRandomPassword,
+// } = require("../utils/auth/generateRandomPsw.js");
+// const Visit = require("../models/visitModel.js");
 
-//   //incorrect email
-//   if (err.message === "incorrect email") {
-//     errors.email = "that email is not registered";
-//   }
-//   //incorrect password
-//   if (err.message === "incorrect password") {
-//     errors.password = "that password is incorrect";
-//   }
-
-//   // duplicate error code
-//   if (err.code === 11000) {
-//     errors.email = "that email is already registered";
-//     return errors;
-//   }
-
-//   //validation errors
-//   if (err.message.includes("user validation failed")) {
-//     Object.values(err.errors).forEach(({ properties }) => {
-//       console.log(properties);
-//       errors[properties.path] = properties.message;
-//     });
-//   }
-
-//   return errors;
-// };
+// const {
+//   sendVisitCancellationEmail,
+// } = require("../utils/visits/visitCancellationEmail.js");
+// const { startOfDay, addDays, addHours } = require("date-fns");
+// const moment = require("moment");
+// const {
+//   sendLeaveApprovalEmail,
+//   sendLeaveDeclinalEmail,
+//   sendNewLeaveRequestEmailToAdmin,
+// } = require("../utils/doctors/leaveManagementEmails.js");
+// const {
+//   checkDuplicateLeaveRequests,
+//   validateLeaveRequests,
+// } = require("../utils/doctors/leaveRequests.js");
 
 // Register a new user, with VAT check for admins
-module.exports.signup = async (req, res) => {
-  try {
-    // const { email, password, role, vatNumber } = req.body; // successivamente
-    const { email, password, role } = req.body;
-
-    // Check if email already exists
-    const existingUser = await Admin.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "User already exists" });
-
-    // check if the role is valid
-    if (!role === "admin") {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
-    // Create user with hashed password
-    // const user = new Admin({ email, password, role, vatNumber }); // da aggiungere successivamente
-    const user = new Admin({ email, password, role });
-    // const token = user.generateVerificationToken();
-
-    // user.verificationToken = token;
-    await user.save();
-
-    // Send verification email
-    // await sendVerificationEmail(user, token);
-    res.status(201).json({
-      message: "User registered correctly!",
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error });
-  }
-};
-
-module.exports.login = async (req, res) => {
-  try {
-    const { email, password, role } = req.body;
-    const user = await Admin.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    if (!role === "admin") {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-    // // Verify VAT number if the user is an admin
-    // if (user.role === "admin" && user.vatNumber !== vatNumber) {
-    //   return res.status(401).json({ message: "Invalid VAT number" });
-    // }
-
-    // if (!user.isVerified) {
-    //   return res.status(403).json({ message: "Email not verified" });
-    // }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.status(200).json({ token });
-    console.log("you did it!");
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports.logout_get = (req, res) => {
-  res.cookie("jwt", "", { maxAge: 1 });
-  res.redirect("/signout");
-};
-
-const createDoctor = async (req, res, next) => {
+const createAdmin = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -149,23 +53,23 @@ const createDoctor = async (req, res, next) => {
 
     if (existingDoctor || existingTaxId) {
       return res.status(409).json({
-        message: "A Doctor with the same TaxId or email already exists",
+        message: "An Admin with the same TaxId or email already exists",
       });
     }
 
-    let workShiftsGMT = [];
-    if (workShifts && workShifts.length > 0) {
-      workShiftsGMT = workShifts.map((shift) => ({
-        dayOfWeek: shift.dayOfWeek,
-        startTime: moment(shift.startTime, "HH:mm").utc().format("HH:mm"),
-        endTime: moment(shift.endTime, "HH:mm").utc().format("HH:mm"),
-      }));
-    }
+    // let workShiftsGMT = [];
+    // if (workShifts && workShifts.length > 0) {
+    //   workShiftsGMT = workShifts.map((shift) => ({
+    //     dayOfWeek: shift.dayOfWeek,
+    //     startTime: moment(shift.startTime, "HH:mm").utc().format("HH:mm"),
+    //     endTime: moment(shift.endTime, "HH:mm").utc().format("HH:mm"),
+    //   }));
+    // }
 
-    const randomPassword = generateRandomPassword();
-    const hashedPassword = bcryptjs.hashSync(randomPassword, 10);
+    // const randomPassword = generateRandomPassword();
+    const hashedPassword = bcryptjs.hashSync(password, 10);
 
-    const newDoctor = await Doctor.create({
+    const newAdmin = await Admin.create({
       firstName,
       lastName,
       email,
@@ -176,16 +80,16 @@ const createDoctor = async (req, res, next) => {
       profilePicture,
       about,
       phoneNumber,
-      workShifts: workShifts === undefined ? workShifts : workShiftsGMT,
+      // workShifts: workShifts === undefined ? workShifts : workShiftsGMT,
     });
-    const token = jwt.sign({ userId: newDoctor._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: newAdmin._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    await sendWelcomeEmail(newDoctor.email, randomPassword, token);
+    await sendWelcomeEmail(newAdmin.email, token);
 
     res.status(201).json({
-      message: "Doctor created successfully and email sent",
-      doctor: newDoctor,
+      message: "Admin created successfully and email sent",
+      admin: newAdmin,
     });
   } catch (err) {
     console.error(err);
@@ -193,16 +97,16 @@ const createDoctor = async (req, res, next) => {
   }
 };
 
-const getAllDoctors = async (req, res, next) => {
+const getAllAdmins = async (req, res, next) => {
   try {
-    const doctors = await Doctor.find();
-    res.status(200).json(doctors);
+    const admins = await Admin.find();
+    res.status(200).json(admins);
   } catch (err) {
     next(errorHandler(500, "Internal Server Error"));
   }
 };
 
-const getDoctorProfile = async (req, res, next) => {
+const getAdminProfile = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
     return next(errorHandler(401, "You can see only your account"));
   }
@@ -210,13 +114,13 @@ const getDoctorProfile = async (req, res, next) => {
   const userId = req.user.id;
 
   try {
-    const doctor = await Doctor.findById(userId);
+    const admin = await Admin.findById(userId);
 
-    if (!doctor) {
+    if (!admin) {
       return res.status(404).json({ message: "doctor not found." });
     }
 
-    const { password, ...rest } = doctor._doc;
+    const { password, ...rest } = admin._doc;
 
     res.status(200).json({ ...rest });
   } catch (err) {
@@ -224,116 +128,116 @@ const getDoctorProfile = async (req, res, next) => {
   }
 };
 
-const getDoctorById = async (req, res, next) => {
+const getAdminById = async (req, res, next) => {
   try {
-    const doctor = await Doctor.findById(req.params.id);
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
+    const admin = await Admin.findById(req.params.id);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
     }
-    res.status(200).json(doctor);
+    res.status(200).json(admin);
   } catch (err) {
     console.log(err);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
 
-const getDoctorAvailabilityForSpecificDate = async (req, res, next) => {
-  try {
-    const doctor = await Doctor.findById(req.params.id);
+// const getDoctorAvailabilityForSpecificDate = async (req, res, next) => {
+//   try {
+//     const doctor = await Doctor.findById(req.params.id);
 
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
-    }
+//     if (!doctor) {
+//       return res.status(404).json({ message: "Doctor not found" });
+//     }
 
-    const visitDate = req.query.visitDate;
+//     const visitDate = req.query.visitDate;
 
-    if (!visitDate) {
-      return res.status(400).json({ message: "Visit date is required" });
-    }
+//     if (!visitDate) {
+//       return res.status(400).json({ message: "Visit date is required" });
+//     }
 
-    const currentDate = new Date();
+//     const currentDate = new Date();
 
-    if (new Date(visitDate) < currentDate) {
-      return res
-        .status(400)
-        .json({ message: "Visit date must be in the future" });
-    }
+//     if (new Date(visitDate) < currentDate) {
+//       return res
+//         .status(400)
+//         .json({ message: "Visit date must be in the future" });
+//     }
 
-    const minutes = new Date(visitDate).getMinutes();
-    if (minutes % 60 !== 0) {
-      return res
-        .status(400)
-        .json({ message: "Visit must be scheduled in one-hour intervals" });
-    }
+//     const minutes = new Date(visitDate).getMinutes();
+//     if (minutes % 60 !== 0) {
+//       return res
+//         .status(400)
+//         .json({ message: "Visit must be scheduled in one-hour intervals" });
+//     }
 
-    const isAvailable = await doctor.isAvailable(new Date(visitDate));
-    const hasExistingVisits = await doctor.checkExistingVisits(
-      new Date(visitDate)
-    );
+//     const isAvailable = await doctor.isAvailable(new Date(visitDate));
+//     const hasExistingVisits = await doctor.checkExistingVisits(
+//       new Date(visitDate)
+//     );
 
-    res.json({ isAvailable, hasExistingVisits });
-  } catch (error) {
-    console.error("Error getting doctor availability:", error);
-    next(errorHandler(500, "Internal Server Error"));
-  }
-};
+//     res.json({ isAvailable, hasExistingVisits });
+//   } catch (error) {
+//     console.error("Error getting doctor availability:", error);
+//     next(errorHandler(500, "Internal Server Error"));
+//   }
+// };
 
-const getDoctorWeeklyAvailability = async (req, res, next) => {
-  try {
-    const doctor = await Doctor.findById(req.params.id);
+// const getDoctorWeeklyAvailability = async (req, res, next) => {
+//   try {
+//     const doctor = await Doctor.findById(req.params.id);
 
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
-    }
+//     if (!doctor) {
+//       return res.status(404).json({ message: "Doctor not found" });
+//     }
 
-    const currentDateMoment = moment().utc().startOf("day").add(1, "days");
-    const endDateMoment = currentDateMoment.clone().add(6, "days");
+//     const currentDateMoment = moment().utc().startOf("day").add(1, "days");
+//     const endDateMoment = currentDateMoment.clone().add(6, "days");
 
-    let currentDate = currentDateMoment.toDate();
-    const endDate = endDateMoment.toDate();
+//     let currentDate = currentDateMoment.toDate();
+//     const endDate = endDateMoment.toDate();
 
-    const availableSlots = [];
+//     const availableSlots = [];
 
-    while (currentDate <= endDate) {
-      const dayOfWeek = currentDate.toLocaleDateString("en-US", {
-        weekday: "long",
-      });
-      const workShift = doctor.workShifts.find(
-        (shift) => shift.dayOfWeek === dayOfWeek
-      );
+//     while (currentDate <= endDate) {
+//       const dayOfWeek = currentDate.toLocaleDateString("en-US", {
+//         weekday: "long",
+//       });
+//       const workShift = doctor.workShifts.find(
+//         (shift) => shift.dayOfWeek === dayOfWeek
+//       );
 
-      if (workShift) {
-        let startTime = addHours(
-          currentDate,
-          parseInt(workShift.startTime.split(":")[0])
-        );
-        const endTime = addHours(
-          currentDate,
-          parseInt(workShift.endTime.split(":")[0])
-        );
-        while (startTime < endTime) {
-          const isAvailable = await doctor.isAvailable(startTime);
-          const hasExistingVisits = await doctor.checkExistingVisits(startTime);
+//       if (workShift) {
+//         let startTime = addHours(
+//           currentDate,
+//           parseInt(workShift.startTime.split(":")[0])
+//         );
+//         const endTime = addHours(
+//           currentDate,
+//           parseInt(workShift.endTime.split(":")[0])
+//         );
+//         while (startTime < endTime) {
+//           const isAvailable = await doctor.isAvailable(startTime);
+//           const hasExistingVisits = await doctor.checkExistingVisits(startTime);
 
-          if (isAvailable && !hasExistingVisits) {
-            availableSlots.push(startTime);
-          }
+//           if (isAvailable && !hasExistingVisits) {
+//             availableSlots.push(startTime);
+//           }
 
-          startTime = addHours(startTime, 1);
-        }
-      }
+//           startTime = addHours(startTime, 1);
+//         }
+//       }
 
-      currentDate = addDays(currentDate, 1);
-    }
+//       currentDate = addDays(currentDate, 1);
+//     }
 
-    res.json(availableSlots);
-  } catch (error) {
-    console.error("Error getting doctor availability:", error);
-    next(errorHandler(500, "Internal Server Error"));
-  }
-};
+//     res.json(availableSlots);
+//   } catch (error) {
+//     console.error("Error getting doctor availability:", error);
+//     next(errorHandler(500, "Internal Server Error"));
+//   }
+// };
 
-const updateDoctor = async (req, res, next) => {
+const updateAdmin = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
     return next(errorHandler(401, "You can update only your account"));
   }
@@ -367,7 +271,7 @@ const updateDoctor = async (req, res, next) => {
     if (lastName) updateFields.lastName = lastName;
 
     if (taxId) {
-      const existingTaxId = await User.findOne({
+      const existingTaxId = await Admin.findOne({
         taxId,
         _id: { $ne: req.params.id },
       });
@@ -377,7 +281,7 @@ const updateDoctor = async (req, res, next) => {
     }
 
     if (email) {
-      const existingEmail = await Doctor.findOne({
+      const existingEmail = await Admin.findOne({
         email,
         _id: { $ne: req.params.id },
       });
@@ -408,8 +312,8 @@ const updateDoctor = async (req, res, next) => {
     if (profilePicture) updateFields.profilePicture = profilePicture;
     if (workShifts) updateFields.workShifts = workShifts;
     if (leaveRequests) {
-      const existingDoctor = await Doctor.findById(req.params.id);
-      const existingLeaveRequests = await Doctor.findById(req.params.id).select(
+      const existingAdmin = await Admin.findById(req.params.id);
+      const existingLeaveRequests = await Admin.findById(req.params.id).select(
         "leaveRequests"
       );
 
@@ -427,26 +331,26 @@ const updateDoctor = async (req, res, next) => {
       }
 
       updateFields.leaveRequests =
-        existingDoctor.leaveRequests.concat(leaveRequests);
+        existingAdmin.leaveRequests.concat(leaveRequests);
 
       for (const request of leaveRequests) {
-        request.doctorName = `${existingDoctor.firstName} ${existingDoctor.lastName}`;
-        request.doctorEmail = existingDoctor.email;
+        request.adminName = `${existingAdmin.firstName} ${existingAdmin.lastName}`;
+        request.adminEmail = existingAdmin.email;
         await sendNewLeaveRequestEmailToAdmin(request);
       }
     }
 
-    const updatedDoctor = await Doctor.findByIdAndUpdate(
+    const updatedAdmin = await Admin.findByIdAndUpdate(
       req.params.id,
       { $set: updateFields },
       { new: true }
     );
 
-    if (!updatedDoctor) {
+    if (!updatedAdmin) {
       return next(errorHandler(404, "Doctor not found"));
     }
 
-    const { password: userPassword, ...rest } = updatedDoctor._doc;
+    const { password: userPassword, ...rest } = updatedAdmin._doc;
 
     res.status(200).json({ user: rest });
   } catch (err) {
@@ -455,185 +359,182 @@ const updateDoctor = async (req, res, next) => {
   }
 };
 
-const deleteDoctor = async (req, res, next) => {
+const deleteAdmin = async (req, res, next) => {
   try {
-    const { id: doctorId } = req.params;
+    const { id: adminId } = req.params;
     const { id: authUserId, role } = req.user;
 
-    const doctorToDelete = await Doctor.findById(doctorId);
+    const adminToDelete = await Admin.findById(adminId);
 
-    if (!doctorToDelete) {
+    if (!adminToDelete) {
       return next(errorHandler(404, "Doctor not found"));
     }
 
-    if (authUserId !== doctorToDelete.id && role !== "admin") {
+    if (authUserId !== adminToDelete.id && role !== "admin") {
       return next(
         errorHandler(
           403,
-          "Permission denied. You can only delete your own profile or an admin can delete any profile."
+          "Permission denied. You can only delete your own profile, an admin can delete any profile."
         )
       );
     }
 
-    const currentDate = new Date();
+    // const currentDate = new Date();
 
-    const deletedDoctor = await Doctor.findByIdAndDelete(doctorId);
+    const deletedAdmin = await Admin.findByIdAndDelete(adminId);
 
-    if (!deletedDoctor) {
-      return res.status(404).json({ message: "Doctor not found" });
+    if (!deletedAdmin) {
+      return res.status(404).json({ message: "Admin not found" });
     }
 
     // Delete future appointments
-    const deletionResult = await Visit.deleteMany({
-      doctor: doctorId,
-      date: { $gte: currentDate },
-    });
+    // const deletionResult = await Visit.deleteMany({
+    //   doctor: doctorId,
+    //   date: { $gte: currentDate },
+    // });
 
-    // If any appointments are deleted, send cancellation emails to the affected patients
-    if (deletionResult.deletedCount > 0) {
-      const futureVisits = await Visit.find({
-        doctor: doctorId,
-        date: { $gte: currentDate },
-      });
+    // // If any appointments are deleted, send cancellation emails to the affected patients
+    // if (deletionResult.deletedCount > 0) {
+    //   const futureVisits = await Visit.find({
+    //     doctor: doctorId,
+    //     date: { $gte: currentDate },
+    //   });
 
-      for (const deletedVisit of futureVisits) {
-        const patientDetails = await User.findById(deletedVisit.user);
-        const userEmail = patientDetails.email;
+    //   // for (const deletedVisit of futureVisits) {
+    //   //   const patientDetails = await Admin.findById(deletedVisit.user);
+    //   //   const userEmail = patientDetails.email;
 
-        // Send visit cancellation email
-        await sendVisitCancellationEmail(userEmail, deletedDoctor.email, {
-          date: deletedVisit.date,
-          doctor: {
-            firstName: deletedDoctor.firstName,
-            lastName: deletedDoctor.lastName,
-            specialization: deletedDoctor.specialization,
-          },
-          patient: {
-            firstName: patientDetails.firstName,
-            lastName: patientDetails.lastName,
-            taxId: patientDetails.taxId,
-          },
-        });
-      }
-    }
+    //     // Send visit cancellation email
+    //     await sendVisitCancellationEmail(userEmail, deletedDoctor.email, {
+    //       date: deletedVisit.date,
+    //       doctor: {
+    //         firstName: deletedDoctor.firstName,
+    //         lastName: deletedDoctor.lastName,
+    //         specialization: deletedDoctor.specialization,
+    //       },
+    //       patient: {
+    //         firstName: patientDetails.firstName,
+    //         lastName: patientDetails.lastName,
+    //         taxId: patientDetails.taxId,
+    //       },
+    //     });
     res
       .status(200)
-      .json({ message: "Doctor and future appointments deleted successfully" });
+      .json({ message: "Admin and future appointments deleted successfully" });
   } catch (err) {
-    console.log(err);
-    next(errorHandler(500, "Internal Server Error: " + err.message));
-  }
-};
-
-const approveLeaveRequest = async (req, res, next) => {
-  try {
-    const doctorId = req.params.id;
-    const leaveRequestId = req.params.leaveRequestId;
-
-    const doctor = await Doctor.findById(doctorId);
-
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
-    }
-
-    const leaveRequest = doctor.leaveRequests.id(leaveRequestId);
-
-    if (!leaveRequest) {
-      throw new Error("Leave request not found");
-    }
-
-    if (leaveRequest.isApproved !== null) {
-      throw new Error("Leave request has already been processed");
-    }
-
-    leaveRequest.isApproved = true;
-    await sendLeaveApprovalEmail(doctor.email, leaveRequest);
-    await doctor.save();
-
-    res.status(200).json({ message: "Leave request approved" });
-  } catch (error) {
-    console.error("Error approving leave request:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
 
-const declineLeaveRequest = async (req, res, next) => {
-  try {
-    const doctorId = req.params.id;
-    const leaveRequestId = req.params.leaveRequestId;
+// const approveLeaveRequest = async (req, res, next) => {
+//   try {
+//     const doctorId = req.params.id;
+//     const leaveRequestId = req.params.leaveRequestId;
 
-    const doctor = await Doctor.findById(doctorId);
+//     const doctor = await Doctor.findById(doctorId);
 
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
-    }
+//     if (!doctor) {
+//       return res.status(404).json({ message: "Doctor not found" });
+//     }
 
-    const leaveRequest = doctor.leaveRequests.id(leaveRequestId);
+//     const leaveRequest = doctor.leaveRequests.id(leaveRequestId);
 
-    if (!leaveRequest) {
-      throw new Error("Leave request not found");
-    }
+//     if (!leaveRequest) {
+//       throw new Error("Leave request not found");
+//     }
 
-    if (leaveRequest.isApproved !== null) {
-      throw new Error("Leave request has already been processed");
-    }
+//     if (leaveRequest.isApproved !== null) {
+//       throw new Error("Leave request has already been processed");
+//     }
 
-    leaveRequest.isApproved = false;
-    await sendLeaveDeclinalEmail(doctor.email, leaveRequest);
-    await doctor.save();
+//     leaveRequest.isApproved = true;
+//     await sendLeaveApprovalEmail(doctor.email, leaveRequest);
+//     await doctor.save();
 
-    res.status(200).json({ message: "Leave request declined" });
-  } catch (error) {
-    console.error("Error declining leave request:", error);
-    next(errorHandler(500, "Internal Server Error"));
-  }
-};
+//     res.status(200).json({ message: "Leave request approved" });
+//   } catch (error) {
+//     console.error("Error approving leave request:", error);
+//     next(errorHandler(500, "Internal Server Error"));
+//   }
+// };
 
-const deleteLeaveRequest = async (req, res, next) => {
-  if (req.user.id !== req.params.id) {
-    return next(errorHandler(401, "You can delete only your leaves/vacations"));
-  }
+// const declineLeaveRequest = async (req, res, next) => {
+//   try {
+//     const doctorId = req.params.id;
+//     const leaveRequestId = req.params.leaveRequestId;
 
-  try {
-    const doctorId = req.params.id;
-    const leaveRequestId = req.params.leaveRequestId;
+//     const doctor = await Doctor.findById(doctorId);
 
-    const doctor = await Doctor.findById(doctorId);
+//     if (!doctor) {
+//       return res.status(404).json({ message: "Doctor not found" });
+//     }
 
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
-    }
+//     const leaveRequest = doctor.leaveRequests.id(leaveRequestId);
 
-    const leaveRequest = doctor.leaveRequests.id(leaveRequestId);
+//     if (!leaveRequest) {
+//       throw new Error("Leave request not found");
+//     }
 
-    if (!leaveRequest) {
-      return res.status(404).json({ message: "Leave request not found" });
-    }
+//     if (leaveRequest.isApproved !== null) {
+//       throw new Error("Leave request has already been processed");
+//     }
 
-    leaveRequest.deleteOne();
-    await doctor.save();
+//     leaveRequest.isApproved = false;
+//     await sendLeaveDeclinalEmail(doctor.email, leaveRequest);
+//     await doctor.save();
 
-    const { password: userPassword, ...rest } = doctor._doc;
+//     res.status(200).json({ message: "Leave request declined" });
+//   } catch (error) {
+//     console.error("Error declining leave request:", error);
+//     next(errorHandler(500, "Internal Server Error"));
+//   }
+// };
 
-    res
-      .status(200)
-      .json({ user: rest, message: "Leave request successfully deleted" });
-  } catch (err) {
-    console.error("Error deleting leave request:", err);
-    next(errorHandler(500, "Internal Server Error"));
-  }
-};
+// const deleteLeaveRequest = async (req, res, next) => {
+//   if (req.user.id !== req.params.id) {
+//     return next(errorHandler(401, "You can delete only your leaves/vacations"));
+//   }
+
+//   try {
+//     const doctorId = req.params.id;
+//     const leaveRequestId = req.params.leaveRequestId;
+
+//     const doctor = await Doctor.findById(doctorId);
+
+//     if (!doctor) {
+//       return res.status(404).json({ message: "Doctor not found" });
+//     }
+
+//     const leaveRequest = doctor.leaveRequests.id(leaveRequestId);
+
+//     if (!leaveRequest) {
+//       return res.status(404).json({ message: "Leave request not found" });
+//     }
+
+//     leaveRequest.deleteOne();
+//     await doctor.save();
+
+//     const { password: userPassword, ...rest } = doctor._doc;
+
+//     res
+//       .status(200)
+//       .json({ user: rest, message: "Leave request successfully deleted" });
+//   } catch (err) {
+//     console.error("Error deleting leave request:", err);
+//     next(errorHandler(500, "Internal Server Error"));
+//   }
+// };
 
 module.exports = {
-  deleteLeaveRequest,
-  declineLeaveRequest,
-  approveLeaveRequest,
-  deleteDoctor,
-  updateDoctor,
-  getDoctorById,
-  getDoctorProfile,
-  getDoctorWeeklyAvailability,
-  getDoctorAvailabilityForSpecificDate,
-  getAllDoctors,
-  createDoctor,
+  // deleteLeaveRequest,
+  // declineLeaveRequest,
+  // approveLeaveRequest,
+  deleteAdmin,
+  updateAdmin,
+  getAdminById,
+  getAdminProfile,
+  // getDoctorWeeklyAvailability,
+  // getDoctorAvailabilityForSpecificDate,
+  getAllAdmins,
+  createAdmin,
 };

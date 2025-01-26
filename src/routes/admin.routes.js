@@ -1,16 +1,11 @@
 const express = require("express");
 const {
-  createDoctor,
-  getAllDoctors,
-  getDoctorById,
-  updateDoctor,
-  deleteDoctor,
-  getDoctorProfile,
-  deleteLeaveRequest,
-  approveLeaveRequest,
-  declineLeaveRequest,
-  getDoctorAvailabilityForSpecificDate,
-  getDoctorWeeklyAvailability,
+  createAdmin,
+  getAllAdmins,
+  getAdminById,
+  updateAdmin,
+  deleteAdmin,
+  getAdminProfile,
 } = require("../controllers/auth.admin.controller.js");
 const {
   disable2FA,
@@ -149,7 +144,7 @@ router.post(
         return true;
       }),
   ],
-  createDoctor
+  createAdmin
 );
 
 router.post("/verify-email/:token", (req, res, next) =>
@@ -262,21 +257,21 @@ router.put(
         return true;
       }),
   ],
-  updateDoctor
+  updateAdmin
 );
 
-router.put(
-  "/:id/approve/:leaveRequestId",
-  verifyToken,
-  verifyAdmin,
-  approveLeaveRequest
-);
-router.put(
-  "/:id/decline/:leaveRequestId",
-  verifyToken,
-  verifyAdmin,
-  declineLeaveRequest
-);
+// router.put(
+//   "/:id/approve/:leaveRequestId",
+//   verifyToken,
+//   verifyAdmin,
+//   approveLeaveRequest
+// );
+// router.put(
+//   "/:id/decline/:leaveRequestId",
+//   verifyToken,
+//   verifyAdmin,
+//   declineLeaveRequest
+// );
 
 router.post("/password-reset-request", (req, res, next) =>
   passwordResetRequest(req, res, next, Doctor)
@@ -315,19 +310,17 @@ router.post(
   (req, res, next) => disable2FA(req, res, next, Doctor)
 );
 
-router.delete("/delete/:id", verifyToken, deleteDoctor);
-router.delete(
-  "/:id/leave-requests/:leaveRequestId",
-  verifyToken,
-  deleteLeaveRequest
-);
+router.delete("/delete/:id", verifyToken, deleteAdmin);
+// router.delete(
+//   "/:id/leave-requests/:leaveRequestId",
+//   verifyToken,
+//   deleteLeaveRequest
+// );
 
-router.get("/", getAllDoctors);
-router.get("/:id", getDoctorById);
-router.get("/:id/dateAvailability", getDoctorAvailabilityForSpecificDate);
-router.get("/:id/weeklyAvailability", getDoctorWeeklyAvailability);
-router.get("/profile/:id", verifyToken, getDoctorProfile);
+router.get("/", getAllAdmins);
+router.get("/:id", getAdminById);
+// router.get("/:id/dateAvailability", getDoctorAvailabilityForSpecificDate);
+// router.get("/:id/weeklyAvailability", getDoctorWeeklyAvailability);
+router.get("/profile/:id", verifyToken, getAdminProfile);
 
 module.exports = router;
-
-// export default router;
