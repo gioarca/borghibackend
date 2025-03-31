@@ -40,6 +40,16 @@ if (process.env.NODE_ENV === "development") {
   connect(); // Connessione al database di produzione
 }
 
+app.use(
+  express.static("public", {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".jsx")) {
+        res.setHeader("Content-Type", "application/javascript");
+      }
+    },
+  })
+);
+
 // Middleware
 app.use(cookieParser());
 app.use(express.json({ limit: "200mb" }));
@@ -50,17 +60,28 @@ const adminRoutes = require("./routes/admin.routes.js");
 const userRoutes = require("./routes/user.routes.js");
 const authRoutes = require("./routes/auth.routes.js");
 const borgoRoute = require("./routes/borgo.route.js");
-// const languageRoute = require("./routes/language.route.js");
 
 app.use("/", authRoutes);
-// app.use("/", languageRoute);
 app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
 app.use("/borghi", borgoRoute);
 
-// Avvio del server
-const port = process.env.PORT || 10000;
+// Handler per route non trovate
+app.use((req, res) => {
+  res.status(404).send({
+    error: {
+      message: "Risorsa non trovata",
+      status: 404,
+    },
+  });
+});
 
+// Avvio del server
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(
+    `Server running on http://localhost:${port} in ${
+      process.env.NODE_ENV || "development"
+    } mode`
+  );
 });

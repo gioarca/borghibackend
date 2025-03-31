@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs"); // Use bcryptjs, not bcrypt
+// const bcrypt = require("bcryptjs"); // Use bcryptjs, not bcrypt
+const bcryptjs = require("bcryptjs");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -63,36 +64,20 @@ UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   try {
-    // Hash the password with a salt of 10 rounds
-    this.password = await bcrypt.hash(this.password, 10);
+    // Genera un salt con un costo di 10
+    const salt = await bcryptjs.genSalt(10);
+    // Hasha la password utilizzando il salt generato
+    this.password = await bcryptjs.hash(this.password, salt);
     next();
   } catch (error) {
     next(error); // Pass any errors to the next middleware
   }
 });
 
-// Method to compare password
-UserSchema.methods.comparePassword = function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+// // Method to compare password
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcryptjs.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
-
-// userSchema.methods.checkExistingVisits = async function (visitDate) {
-//   try {
-//     const startTime = visitDate.toISOString();
-//     const endTime = new Date(visitDate.getTime() + 60 * 60000).toISOString();
-
-//     const existingVisits = await this.model("Visit").find({
-//       user: this._id,
-//       startTime: { $lt: endTime },
-//       endTime: { $gt: startTime },
-//     });
-
-//     return existingVisits.length > 0;
-//   } catch (error) {
-//     console.error("Error checking existing visits:", error);
-//     throw error;
-//   }
-// };

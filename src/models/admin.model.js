@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const type = require("os");
 
 const AdminSchema = new mongoose.Schema(
   {
@@ -55,14 +56,18 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    twoFactorSecret: {
+    role: {
       type: String,
-      default: "",
+      default: "admin",
     },
-    twoFactorEnabled: {
-      type: Boolean,
-      default: false,
-    },
+    // twoFactorSecret: {
+    //   type: String,
+    //   default: "",
+    // },
+    // twoFactorEnabled: {
+    //   type: Boolean,
+    //   default: false,
+    // },
 
     leaveRequests: {
       type: [

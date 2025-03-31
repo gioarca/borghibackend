@@ -1,10 +1,14 @@
-import nodemailer from "nodemailer";
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-export const sendWelcomeEmail = async (email, password, token) => {
+const sendWelcomeEmail = async (adminEmail, token) => {
   try {
     // Create a nodemailer transporter using Gmail service
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.GMAIL,
         pass: process.env.GMAIL_PSW_APP,
@@ -19,10 +23,10 @@ export const sendWelcomeEmail = async (email, password, token) => {
 
     const mailOptions = {
       from: process.env.GMAIL,
-      to: email,
+      to: adminEmail,
       subject: "Welcome to Vicus!",
       html: `
-            <p>Welcome to our Vicus! Click <a href="${verifyEmailLink}">here</a> to verify your email. Your temporary password is: ${password}, you can change it later. Please use this <a href="${baseURL}/admin/login">login URL</a>.</p>
+            <p>Welcome to Vicus! Click <a href="${verifyEmailLink}">here</a> to verify your email and become an admin. Please use this <a href="${baseURL}/admin/login">login URL</a>.</p>
         `,
     };
 
@@ -34,3 +38,5 @@ export const sendWelcomeEmail = async (email, password, token) => {
     throw err;
   }
 };
+
+module.exports = sendWelcomeEmail;
