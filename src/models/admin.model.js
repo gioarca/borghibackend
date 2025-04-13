@@ -25,7 +25,8 @@ const AdminSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "A password is required"],
+      // required: [true, "A password is required"],
+      required: true,
     },
     phoneNumber: {
       type: String,
@@ -59,42 +60,6 @@ const AdminSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "admin",
-    },
-    // twoFactorSecret: {
-    //   type: String,
-    //   default: "",
-    // },
-    // twoFactorEnabled: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-
-    leaveRequests: {
-      type: [
-        {
-          createdAt: {
-            type: Date,
-            default: Date.now,
-          },
-          typology: {
-            type: String,
-            required: true,
-          },
-          startDate: {
-            type: Date,
-            required: true,
-          },
-          endDate: {
-            type: Date,
-            required: true,
-          },
-          isApproved: {
-            type: Boolean,
-            default: null,
-          },
-        },
-      ],
-      default: [],
     },
   },
   { timestamps: true }
