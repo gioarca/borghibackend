@@ -7,8 +7,8 @@ const app = express();
 const mongoose = require("mongoose");
 
 dotenv.config();
+connectDB();
 
-// Configurazione CORS
 if (process.env.NODE_ENV === "development") {
   app.use(
     cors({
@@ -16,7 +16,6 @@ if (process.env.NODE_ENV === "development") {
       credentials: true,
     })
   );
-  connectDB(); // Connessione al database locale
 } else {
   app.use(
     cors({
@@ -24,18 +23,37 @@ if (process.env.NODE_ENV === "development") {
       credentials: true,
     })
   );
-  function connect() {
-    const uri = process.env.NODE_ENV;
-    mongoose
-      .connect(`${uri}`, {
-        serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
-      })
-      .then(() => console.log(`Connected to the database!`))
-      .catch((error) => console.error(`Error: ${error.message}`));
-  }
-
-  connect(); // Connessione al database di produzione
 }
+
+// // Configurazione CORS
+// if (process.env.NODE_ENV === "development") {
+//   app.use(
+//     cors({
+//       origin: "http://localhost:5173",
+//       credentials: true,
+//     })
+//   );
+//   connectDB(); // Connessione al database locale
+// } else {
+//   app.use(
+//     cors({
+//       origin: "https://vicus.netlify.app",
+//       credentials: true,
+//     })
+//   );
+//   function connect() {
+//     const uri = process.env.MONGODB_URI;
+//     console.log(uri);
+//     mongoose
+//       .connect(uri, {
+//         serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
+//       })
+//       .then(() => console.log(`Connected to the database!`))
+//       .catch((error) => console.error(`Error: ${error.message}`));
+//   }
+
+//   connect(); // Connessione al database di produzione
+// }
 
 app.use(
   express.static("public", {
@@ -81,4 +99,5 @@ app.listen(port, () => {
       process.env.NODE_ENV || "development"
     } mode`
   );
+  console.log("NODE_ENV:", process.env.NODE_ENV);
 });
