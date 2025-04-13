@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === "development") {
   function connect() {
     const uri = process.env.MONGODB_URI;
     mongoose
-      .connect(uri, {
+      .connect(`${uri}`, {
         serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
       })
       .then(() => console.log(`Connected to the database!`))
