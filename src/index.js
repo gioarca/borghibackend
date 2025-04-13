@@ -25,14 +25,11 @@ if (process.env.NODE_ENV === "development") {
     })
   );
   function connect() {
-    // const uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGODB_URI;
     mongoose
-      .connect(
-        `mongodb+srv://borghisud:Exlus3m3QclQKjBl@cluster0.xv1petb.mongodb.net`,
-        {
-          serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
-        }
-      )
+      .connect(uri, {
+        serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
+      })
       .then(() => console.log(`Connected to the database!`))
       .catch((error) => console.error(`Error: ${error.message}`));
   }
