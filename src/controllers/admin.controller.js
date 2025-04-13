@@ -558,7 +558,7 @@ const getAdminProfile = async (req, res, next) => {
 
 const getAdminById = async (req, res, next) => {
   try {
-    const admin = await Admin.findById(req.params._id);
+    const admin = await Admin.findById(req.params.id);
     if (!admin) {
       return res.status(404).json({ message: "Admin not found" });
     }

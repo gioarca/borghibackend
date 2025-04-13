@@ -63,7 +63,7 @@ router.post("/verify-password", verifyToken, (req, res, next) =>
   verifyPassword(req, res, next, User)
 );
 
-router.get("/profile/:id", verifyToken, getUserProfile);
+router.get("/user/:_id", verifyToken, getUserProfile);
 
 router.post("/password-reset-request", (req, res, next) =>
   passwordResetRequest(req, res, next, User)
@@ -73,7 +73,7 @@ router.post("/password-reset/:token", (req, res, next) =>
 );
 
 router.put(
-  "/update/:id",
+  "/update/:_id",
   verifyToken,
   cloudinaryMiddleware,
   [

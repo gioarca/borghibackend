@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === "development") {
     })
   );
   function connect() {
-    const uri = process.env.MONGODB_URI;
+    const uri = process.env.NODE_ENV;
     mongoose
       .connect(`${uri}`, {
         serverSelectionTimeoutMS: 60000, // Timeout per la selezione del server (60 secondi)
