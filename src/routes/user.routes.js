@@ -9,7 +9,6 @@ const {
 } = require("../controllers/user.controller.js");
 const {
   cloudinaryMiddleware,
-
   verifyToken,
 } = require("../middleware/authMiddleware.js");
 const {

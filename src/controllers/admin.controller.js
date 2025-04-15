@@ -528,7 +528,7 @@ const loginAdmin = async (req, res) => {
 const getAllAdmins = async (req, res, next) => {
   try {
     const admins = await Admin.find();
-    res.status(200).json(admins);
+    res.status(200).json({ admins });
   } catch (err) {
     next(errorHandler(500, "Internal Server Error"));
   }
@@ -571,8 +571,8 @@ const getAdminById = async (req, res, next) => {
 
 const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const users = await User.find().select("-password"); // esclude password
+    res.status(200).json({ users });
   } catch (err) {
     next(errorHandler(500, "Internal Server Error"));
   }

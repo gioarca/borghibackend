@@ -39,10 +39,6 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       required: [true, "City is required"],
     },
-    about: {
-      type: String,
-      default: "",
-    },
     profilePicture: {
       type: String,
       default:

@@ -108,8 +108,9 @@ router.post("/password-reset/:token", (req, res, next) =>
   passwordReset(req, res, next, Admin)
 );
 // Admin routes
-router.get("/users", verifyToken, verifyAdmin, getAllUsers);
-router.get("/getAllAdmins", getAllAdmins);
+// router.get("/users", verifyToken, verifyAdmin, getAllUsers);
+router.get("/users", getAllUsers);
+router.get("/admins", getAllAdmins);
 router.delete("/delete/:id", verifyToken, deleteAdmin);
 router.get("/:id", getAdminById);
 router.get("/profile/:id", verifyToken, getAdminProfile);
