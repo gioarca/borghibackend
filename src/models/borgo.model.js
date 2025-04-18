@@ -56,7 +56,7 @@ const borgoSchema = new Schema({
   },
   coworking: {
     type: String,
-    // Coworking is optional
+    // Coworking is an optional --> later on will be implemented in the webapp
   },
 });
 

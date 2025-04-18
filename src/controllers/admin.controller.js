@@ -11,288 +11,6 @@ const { validationResult } = require("express-validator");
 const sendWelcomeEmail = require("../utils/admins/adminWelcomeEmail.js");
 const generateTokenPayload = require("../utils/auth/generateTokenPayload.js");
 
-// Register a new user, with VAT number check for admins
-// const createAdmin = async (req, res, next) => {
-//   dotenv.config();
-//   try {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({ errors: errors.array() });
-//     }
-//     const {
-//       firstName,
-//       lastName,
-//       taxId,
-//       email,
-//       specialization,
-//       city,
-//       profilePicture,
-//       about,
-//       phoneNumber,
-//       password,
-//       confirmPassword,
-//     } = req.body;
-
-//     const existingTaxId = await Admin.findOne({ taxId });
-//     const existingAdmin = await Admin.findOne({ email });
-
-//     if (existingAdmin || existingTaxId) {
-//       return res.status(409).json({
-//         message: "An Admin with the same TaxId or email already exists",
-//       });
-//     }
-
-//     if (password !== confirmPassword) {
-//       return res.status(400).json({ message: "Passwords do not match" });
-//     }
-
-//     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-//     if (!passwordRegex.test(password)) {
-//       return res.status(400).json({
-//         message:
-//           "Password must contain at least one lowercase letter, one uppercase letter, and one number",
-//       });
-//     }
-
-//     const hashedPassword = bcryptjs.hashSync(password, 10);
-
-//     const newAdmin = await Admin.create({
-//       firstName,
-//       lastName,
-//       email,
-//       taxId,
-//       password: hashedPassword,
-//       specialization,
-//       city,
-//       profilePicture,
-//       about,
-//       phoneNumber,
-//     });
-//     const token = jwt.sign({ userId: newAdmin._id }, process.env.JWT_SECRET, {
-//       expiresIn: "1d",
-//     });
-//     await sendWelcomeEmail(newAdmin.email, token);
-
-//     res.status(201).json({
-//       message: "Admin created successfully and email sent",
-//       admin: newAdmin,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     next(errorHandler(500, "Internal Server Error"));
-//   }
-// };
-
-// // ---------- Admin Login ----------
-// // const loginAdmin = async (req, res, next) => {
-// //   const JWT_SECRET = process.env.JWT_SECRET;
-// //   try {
-// //     const errors = validationResult(req);
-// //     if (!errors.isEmpty()) {
-// //       return res.status(400).json({ errors: errors.array() });
-// //     }
-
-// //     const { email, password } = req.body;
-
-// //     const validAdmin = await Admin.findOne({ email });
-
-// //     if (!validAdmin) {
-// //       return res.status(404).json({ message: `Admin not found` });
-// //     }
-
-// //     const validPassword = await bcryptjs.compare(password, validAdmin.password); // validAdmin.password;
-// //     if (!validPassword) {
-// //       return res.status(401).json({
-// //         message: "Wrong credentials. Please check your email and password.",
-// //       });
-// //     }
-
-// //     if (!validAdmin.isVerified) {
-// //       return res.status(401).json({
-// //         message:
-// //           "Email not verified. Please check your email for verification instructions.",
-// //       });
-// //     }
-
-// //     // Generate JWT token for authentication
-// //     const tokenPayload = generateTokenPayload(validAdmin);
-
-// //     const token = jwt.sign(tokenPayload, JWT_SECRET);
-// //     console.log("Token: ", token);
-// //     const { password: hashedPassword, ...rest } = validAdmin._doc;
-// //     const expiryDate = new Date(
-// //       Date.now() + (validAdmin.isAdmin ? 43200000 : 3600000)
-// //     );
-
-// //     res
-// //       .cookie("access_token", token, {
-// //         httpOnly: true,
-// //         secure: true,
-// //         sameSite: "None",
-// //         expires: expiryDate,
-// //       })
-// //       .status(200)
-// //       .json({
-// //         message: "Login effettuato con successo",
-// //         user: rest,
-// //         token,
-// //         expiration: expiryDate.getTime(),
-// //       });
-// //   } catch (err) {
-// //     next(errorHandler(500, "Internal Server Error"));
-// //     console.log(err);
-// //   }
-// // };
-
-// const generateTokenPayload = (user) => ({
-//   id: user._id,
-//   role: user.role || (user.isAdmin ? "admin" : "user"),
-// });
-
-// // const loginAdmin = async (req, res, next) => {
-// //   const JWT_SECRET = process.env.JWT_SECRET;
-
-// //   try {
-// //     const errors = validationResult(req);
-// //     if (!errors.isEmpty()) {
-// //       return next(errorHandler(400, "Dati non validi", errors.array()));
-// //     }
-
-// //     const { email, password } = req.body;
-// //     const validAdmin = await Admin.findOne({ email });
-
-// //     if (!validAdmin) {
-// //       return next(errorHandler(404, "Admin non trovato"));
-// //     }
-
-// //     const validPassword = await bcryptjs.compare(password, validAdmin.password);
-// //     if (!validPassword) {
-// //       return next(errorHandler(401, "Credenziali errate"));
-// //     }
-
-// //     if (!validAdmin.isVerified) {
-// //       return next(
-// //         errorHandler(
-// //           401,
-// //           "Email non verificata. Controlla la tua casella di posta."
-// //         )
-// //       );
-// //     }
-
-// //     const tokenPayload = generateTokenPayload(validAdmin);
-// //     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "12h" });
-
-// //     const { password: _, ...rest } = validAdmin._doc;
-// //     const expiryDate = new Date(
-// //       Date.now() + (validAdmin.isAdmin ? 43200000 : 3600000)
-// //     );
-
-// //     res
-// //       .cookie("access_token", token, {
-// //         httpOnly: true,
-// //         secure: process.env.NODE_ENV === "production",
-// //         sameSite: "None",
-// //         expires: expiryDate,
-// //       })
-// //       .status(200)
-// //       .json({
-// //         message: "Login effettuato con successo",
-// //         user: rest,
-// //         token,
-// //         expiration: expiryDate.getTime(),
-// //       });
-// //   } catch (err) {
-// //     console.error(err);
-// //     next(errorHandler(500, "Errore interno del server"));
-// //   }
-// // };
-
-// const loginAdmin = async (req, res, next) => {
-//   const JWT_SECRET = process.env.JWT_SECRET;
-
-//   if (!JWT_SECRET) {
-//     console.error("JWT_SECRET non impostato!");
-//     return next(errorHandler(500, "Errore di configurazione server"));
-//   }
-
-//   try {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       return next(errorHandler(400, "Dati non validi", errors.array()));
-//     }
-
-//     const { email, password } = req.body;
-
-//     if (!email || !password) {
-//       return next(errorHandler(400, "Email e password sono richiesti"));
-//     }
-
-//     console.log(`Tentativo di login con email: ${email}`);
-
-//     const validAdmin = await Admin.findOne({ email });
-
-//     if (!validAdmin) {
-//       console.log(`Admin non trovato con email: ${email}`);
-//       return next(errorHandler(404, "Admin non trovato"));
-//     }
-
-//     console.log(`Admin trovato: ${validAdmin._id}`);
-
-//     if (!validAdmin.password) {
-//       console.error(`Admin ${validAdmin._id} non ha una password salvata!`);
-//       return next(errorHandler(500, "Errore nei dati dell'account"));
-//     }
-
-//     try {
-//       const validPassword = await bcryptjs.compare(
-//         password,
-//         validAdmin.password
-//       );
-//       console.log(`Risultato verifica password: ${validPassword}`);
-
-//       if (!validPassword) {
-//         return next(errorHandler(401, "Credenziali errate"));
-//       }
-//     } catch (err) {
-//       console.error(`Errore durante il confronto password:`, err);
-//       return next(errorHandler(500, "Errore nella verifica delle credenziali"));
-//     }
-
-//     if (!validAdmin.isVerified) {
-//       return next(
-//         errorHandler(
-//           401,
-//           "Email non verificata. Controlla la tua casella di posta."
-//         )
-//       );
-//     }
-
-//     const tokenPayload = generateTokenPayload(validAdmin);
-//     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "12h" });
-
-//     const { password: _, ...rest } = validAdmin._doc;
-//     const expiryDate = new Date(Date.now() + 43200000); // 12 ore
-
-//     res
-//       .cookie("access_token", token, {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === "production",
-//         sameSite: "None",
-//         expires: expiryDate,
-//       })
-//       .status(200)
-//       .json({
-//         message: "Login effettuato con successo",
-//         user: rest,
-//         token,
-//         expiration: expiryDate.getTime(),
-//       });
-//   } catch (err) {
-//     console.error("Errore nel login:", err);
-//     next(errorHandler(500, "Errore interno del server"));
-//   }
-// };
-
 const createAdmin = async (req, res, next) => {
   dotenv.config();
   try {
@@ -668,6 +386,64 @@ const updateAdmin = async (req, res, next) => {
   }
 };
 
+/* Gestisce il cambio password dell'admin */
+const changePassword = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, "Puoi modificare solo la tua password"));
+  }
+
+  try {
+    const { currentPassword, password, confirmPassword } = req.body;
+
+    // Verifica campi obbligatori
+    if (!currentPassword || !password || !confirmPassword) {
+      return next(errorHandler(400, "Tutti i campi password sono obbligatori"));
+    }
+
+    // Verifica corrispondenza password
+    if (password !== confirmPassword) {
+      return next(
+        errorHandler(400, "La nuova password e la conferma non corrispondono")
+      );
+    }
+
+    // Verifica requisiti password
+    if (!validatePassword(password)) {
+      return next(
+        errorHandler(
+          400,
+          "La password deve contenere almeno una lettera minuscola, una maiuscola e un numero"
+        )
+      );
+    }
+
+    // Verifica password attuale
+    const admin = await Admin.findById(req.params.id);
+    if (!admin) {
+      return next(errorHandler(404, "Admin non trovato"));
+    }
+
+    const isCorrectPassword = await bcrypt.compare(
+      currentPassword,
+      admin.password
+    );
+    if (!isCorrectPassword) {
+      return next(errorHandler(401, "Password attuale non corretta"));
+    }
+
+    // Aggiorna password
+    admin.password = bcrypt.hashSync(password, 10);
+    await admin.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password aggiornata con successo",
+    });
+  } catch (err) {
+    next(errorHandler(500, "Errore nel cambio password"));
+  }
+};
+
 const deleteAdmin = async (req, res, next) => {
   try {
     const { id: adminId } = req.params;
@@ -707,5 +483,6 @@ module.exports = {
   getAllUsers,
   getAdminProfile,
   updateAdmin,
+  changePassword,
   deleteAdmin,
 };

@@ -22,18 +22,11 @@ const {
 } = require("../middleware/authMiddleware.js");
 const { check } = require("express-validator");
 const Admin = require("../models/admin.model.js");
+const { verify } = require("crypto");
 
 const router = express.Router();
 
-router.post(
-  "/login",
-  [
-    check("email").notEmpty().isEmail().withMessage("Valid email is required"),
-    check("password").notEmpty().withMessage("Password is required"),
-  ],
-  loginAdmin
-);
-
+// Admin Sign-up
 router.post(
   "/sign-up",
   [
@@ -63,6 +56,16 @@ router.post(
     check("city").notEmpty().escape().withMessage("City is required"),
   ],
   createAdmin
+);
+
+// Admin login
+router.post(
+  "/login",
+  [
+    check("email").notEmpty().isEmail().withMessage("Valid email is required"),
+    check("password").notEmpty().withMessage("Password is required"),
+  ],
+  loginAdmin
 );
 
 router.post("/verify-email/:token", (req, res, next) =>
@@ -110,7 +113,7 @@ router.post("/password-reset/:token", (req, res, next) =>
 // Admin routes
 // router.get("/users", verifyToken, verifyAdmin, getAllUsers);
 router.get("/users", getAllUsers);
-router.get("/admins", getAllAdmins);
+router.get("/admins", verifyToken, getAllAdmins);
 router.delete("/delete/:id", verifyToken, deleteAdmin);
 router.get("/:id", getAdminById);
 router.get("/profile/:id", verifyToken, getAdminProfile);
