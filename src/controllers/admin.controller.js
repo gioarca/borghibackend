@@ -11,6 +11,7 @@ const { validationResult } = require("express-validator");
 const sendWelcomeEmail = require("../utils/admins/adminWelcomeEmail.js");
 const generateTokenPayload = require("../utils/auth/generateTokenPayload.js");
 
+// ---------- Create admin ----------
 const createAdmin = async (req, res, next) => {
   dotenv.config();
   try {
@@ -81,18 +82,17 @@ const createAdmin = async (req, res, next) => {
     }
 
     // Crea l'admin
-    // const hashedPassword = bcrypt.hashSync(password, 10);
     const newAdmin = await Admin.create({
       firstName,
       lastName,
       email,
       taxId,
-      password,
       specialization,
       city,
       profilePicture,
       about,
       phoneNumber,
+      password,
       isVerified: false, // Assicuriamoci che sia false per richiedere verifica
     });
 
@@ -147,7 +147,7 @@ const loginAdmin = async (req, res) => {
       });
     }
 
-    // Verifica esistenza admin
+    // Verifica esistenza dell'admin
     const admin = await Admin.findOne({ email });
     if (!admin) {
       console.log(`Admin non trovato con email: ${email}`);
@@ -157,6 +157,7 @@ const loginAdmin = async (req, res) => {
       });
     }
 
+    // log per il debugging
     console.log(`Admin trovato: ${admin._id}`);
 
     // Verifica password esistente
@@ -201,7 +202,7 @@ const loginAdmin = async (req, res) => {
       });
     }
 
-    // Verifica email verificata
+    // aggiunta la verifica dell'email
     if (!admin.isVerified) {
       return res.status(401).json({
         success: false,
@@ -243,6 +244,7 @@ const loginAdmin = async (req, res) => {
   }
 };
 
+// Ottieni tutti gli amministratori registrati
 const getAllAdmins = async (req, res, next) => {
   try {
     const admins = await Admin.find();
@@ -287,6 +289,7 @@ const getAdminById = async (req, res, next) => {
   }
 };
 
+// Ottieni tutti gli utenti registrati
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find().select("-password"); // esclude password
@@ -296,6 +299,7 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+// Funzione per aggiornare i dati dell'amministratore
 const updateAdmin = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
     return next(errorHandler(401, "You can update only your account"));
@@ -310,8 +314,6 @@ const updateAdmin = async (req, res, next) => {
       firstName,
       lastName,
       email,
-      password,
-      confirmPassword,
       taxId,
       specialization,
       about,
@@ -319,7 +321,6 @@ const updateAdmin = async (req, res, next) => {
       phoneNumber,
       profilePicture,
     } = req.body;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
     const updateFields = {};
 
@@ -346,20 +347,7 @@ const updateAdmin = async (req, res, next) => {
       updateFields.email = email;
     }
 
-    if (password) {
-      if (password !== confirmPassword) {
-        return res
-          .status(400)
-          .json({ message: "Password and Confirm Password do not match" });
-      } else if (!passwordRegex.test(password)) {
-        return res.status(400).json({
-          message:
-            "Password must contain at least one lowercase letter, one uppercase letter, and one number",
-        });
-      } else {
-        updateFields.password = bcrypt.hashSync(password, 10);
-      }
-    }
+    // Rimosso completamente il blocco relativo alla password
 
     if (specialization) updateFields.specialization = specialization;
     if (about) updateFields.about = about;

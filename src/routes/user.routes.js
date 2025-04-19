@@ -1,5 +1,8 @@
 const express = require("express");
+const { verify } = require("crypto");
 const { check } = require("express-validator");
+const User = require("../models/user.model.js");
+const router = express.Router();
 const {
   createUser,
   loginUser,
@@ -8,17 +11,15 @@ const {
   getUserProfile,
 } = require("../controllers/user.controller.js");
 const {
-  cloudinaryMiddleware,
-  verifyToken,
-} = require("../middleware/authMiddleware.js");
-const {
   passwordReset,
   passwordResetRequest,
   verifyPassword,
   verifyEmail,
 } = require("../controllers/auth.controller.js");
-const User = require("../models/user.model.js");
-const router = express.Router();
+const {
+  cloudinaryMiddleware,
+  verifyToken,
+} = require("../middleware/authMiddleware.js");
 
 // ---------- User Routes ----------
 // User registration

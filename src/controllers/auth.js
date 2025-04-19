@@ -142,32 +142,35 @@ const login = async (req, res, next, Model) => {
 };
 
 const userSignIn = async (req, res, next) => await login(req, res, next, User);
+
 const adminSignIn = async (req, res, next) =>
   await login(req, res, next, Admin);
 
 // ---------- Verify Email ----------
-const verifyEmail = async (req, res, next, Model) => {
+const verifyEmail = async (req, res, next) => {
+  const token = req.params.token;
   try {
-    const token = req.params.token;
     if (!token) {
-      return res.status(400).json({ message: "Token is missing" });
+      return res.status(400).json({ message: "Manca il token" });
     }
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     if (!decodedToken || !decodedToken.userId) {
-      return res.status(400).json({ message: "Invalid token" });
+      return res.status(400).json({ message: "Token non valido" });
     }
 
-    const user = await Model.findById(decodedToken.userId);
+    const user = await User.findById(decodedToken.userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Utente non trovato" });
     }
 
     user.isVerified = true;
     user.emailVerificationToken = null;
     await user.save();
 
-    res.status(200).json({ message: "Email verification successful" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Email verificata con successo" });
   } catch (err) {
     console.error("Error verifying email:", err);
     if (err.name === "TokenExpiredError") {

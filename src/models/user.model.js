@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-const bcryptjs = require("bcryptjs");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const type = require("os");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -49,25 +51,23 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
+// Hash password prima di salvarla
 UserSchema.pre("save", async function (next) {
   // Controlla se la password è stata modificata
   if (!this.isModified("password")) return next();
 
   try {
-    // Genera un salt con un costo di 10
-    const salt = await bcryptjs.genSalt(10);
-    // Hasha la password utilizzando il salt generato
-    this.password = await bcryptjs.hash(this.password, salt);
+    // Hasha la password utilizzando il salt = 10
+    this.password = await bcrypt.hash(this.password, 10);
     next();
   } catch (error) {
-    next(error); // Pass any errors to the next middleware
+    next(error); // Passa tutti gli errori al prossimo middleware
   }
 });
 
 // // Metodo per comparare le password
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcryptjs.compare(candidatePassword, this.password);
+UserSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model("User", UserSchema);

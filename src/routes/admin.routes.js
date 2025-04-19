@@ -1,4 +1,8 @@
 const express = require("express");
+const { check } = require("express-validator");
+const Admin = require("../models/admin.model.js");
+const { verify } = require("crypto");
+const router = express.Router();
 const {
   createAdmin,
   loginAdmin,
@@ -20,13 +24,9 @@ const {
   cloudinaryMiddleware,
   verifyAdmin,
 } = require("../middleware/authMiddleware.js");
-const { check } = require("express-validator");
-const Admin = require("../models/admin.model.js");
-const { verify } = require("crypto");
 
-const router = express.Router();
-
-// Admin Sign-up
+// ---------- Admin Routes ----------
+// Admin registration
 router.post(
   "/sign-up",
   [
@@ -68,11 +68,18 @@ router.post(
   loginAdmin
 );
 
+// User verification
 router.post("/verify-email/:token", (req, res, next) =>
   verifyEmail(req, res, next, Admin)
 );
 router.post("/verify-password", verifyToken, (req, res, next) =>
   verifyPassword(req, res, next, Admin)
+);
+router.post("/password-reset-request", (req, res, next) =>
+  passwordResetRequest(req, res, next, Admin)
+);
+router.post("/password-reset/:token", (req, res, next) =>
+  passwordReset(req, res, next, Admin)
 );
 
 router.put(
@@ -104,16 +111,9 @@ router.put(
   updateAdmin
 );
 
-router.post("/password-reset-request", (req, res, next) =>
-  passwordResetRequest(req, res, next, Admin)
-);
-router.post("/password-reset/:token", (req, res, next) =>
-  passwordReset(req, res, next, Admin)
-);
-// Admin routes
-// router.get("/users", verifyToken, verifyAdmin, getAllUsers);
+// router.get("/users", verifyToken, verifyAdmin, getAllUsers); --> non funziona!
 router.get("/users", getAllUsers);
-router.get("/admins", verifyToken, getAllAdmins);
+router.get("/admins", getAllAdmins);
 router.delete("/delete/:id", verifyToken, deleteAdmin);
 router.get("/:id", getAdminById);
 router.get("/profile/:id", verifyToken, getAdminProfile);

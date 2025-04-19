@@ -24,9 +24,9 @@ const sendWelcomeEmail = async (adminEmail, token) => {
     const mailOptions = {
       from: process.env.GMAIL,
       to: adminEmail,
-      subject: "Welcome to Vicus!",
+      subject: "Vicus: Admin - Verifica la tua Email",
       html: `
-            <p>Welcome to Vicus! Click <a href="${verifyEmailLink}">here</a> to verify your email and become an admin. Please use this <a href="${baseURL}/admin/login">login URL</a>.</p>
+            <p>Benvenuto in Vicus! Clicca <a href="${verifyEmailLink}">qui</a> per verificare la tua email e diventare un amministratore.</p>
         `,
     };
 

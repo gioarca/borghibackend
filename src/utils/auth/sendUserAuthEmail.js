@@ -25,9 +25,8 @@ const sendUserAuthEmail = async (userEmail, token) => {
     const mailOptions = {
       from: process.env.GMAIL,
       to: userEmail,
-      subject: "Verify Your Email",
-      text: `Click on the following link to verify your email: ${verifyEmailLink}`,
-      html: `<p>Click <a href="${verifyEmailLink}">here</a> to verify your email.</p>`,
+      subject: "Vicus: User - Verifica la tua Email",
+      html: `<p>Benvenuto in Vicus! Clicca <a href="${verifyEmailLink}">qui</a> per verificare la tua email ed entrare nella piattaforma! :)</p>`,
     };
 
     await transporter.sendMail(mailOptions);

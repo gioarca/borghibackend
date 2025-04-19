@@ -60,17 +60,17 @@ const AdminSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
+// Hash password prima di salvarla
 AdminSchema.pre("save", async function (next) {
-  // Check if the password has been modified
+  // Controlla se la password è stata modificata
   if (!this.isModified("password")) return next();
 
   try {
-    // Hash the password with a salt of 10 rounds
+    // Genera un salt con un costo di 10
     this.password = await bcrypt.hash(this.password, 10);
     next();
   } catch (error) {
-    next(error); // Pass any errors to the next middleware
+    next(error); // Passa tutti gli errori al prossimo middleware
   }
 });
 

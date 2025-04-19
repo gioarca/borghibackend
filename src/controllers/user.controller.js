@@ -1,9 +1,10 @@
-const { model } = require("mongoose");
-const { error } = require("console");
-const jwt = require("jsonwebtoken");
-const bcryptjs = require("bcryptjs");
-const dotenv = require("dotenv");
+const express = require("express");
 const User = require("../models/user.model.js");
+const jwt = require("jsonwebtoken");
+const Model = require("mongoose");
+const error = require("console");
+const bcrypt = require("bcryptjs");
+const dotenv = require("dotenv");
 const sendUserAuthEmail = require("../utils/auth/sendUserAuthEmail.js");
 const generateTokenPayload = require("../utils/auth/generateTokenPayload.js");
 const errorHandler = require("../utils/error.js");
@@ -17,27 +18,22 @@ const createUser = async (req, res, next) => {
     // Validazione dei campi in ingresso
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
     const {
       name,
       email,
-      password,
-      confirmPassword,
       phoneNumber,
       profilePicture,
+      password,
+      confirmPassword,
     } = req.body;
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
-    }
-
-    // Verifica complessità password
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(password)) {
+    // Verifica campi obbligatori
+    if (!name || !email || !password || !confirmPassword) {
       return res.status(400).json({
-        message:
-          "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+        success: false,
+        message: "I campi nome, email e password sono obbligatori",
       });
     }
 
@@ -46,30 +42,52 @@ const createUser = async (req, res, next) => {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: "User with the same email already exists" });
+        .json({ message: "User con la stessa email già esiste!" });
     }
 
-    // Crea l'utente con password crittografata
-    const hashedPassword = bcryptjs.hashSync(password, 10);
+    // Verifica corrispondenza password
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Le password non corrispondono" });
+    }
 
+    // Verifica complessità password
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "La password deve contenere almeno una lettera minuscola, una maiuscola e un numero",
+      });
+    }
+
+    // Crea lo user
     const newUser = await User.create({
       name,
       email,
-      password: hashedPassword,
       phoneNumber,
       profilePicture,
+      password,
+      isVerified: false, // Assicuriamoci che sia false per richiedere verifica
     });
 
     // Genera un token per la verifica dell'email e invia la mail
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-    await sendUserAuthEmail(newUser.email, token);
+    try {
+      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+      await sendUserAuthEmail(newUser.email, token);
+    } catch (emailError) {
+      console.error("Errore invio email:", emailError);
+      // Continuiamo comunque con la registrazione
+    }
 
+    // Risposta al client
     res.status(201).json({
-      message: "Check your email for verification",
+      success: true,
+      message:
+        "Utente creato con successo! Controlla la tua email per la verifica.",
       user: newUser,
-      password: hashedPassword,
     });
   } catch (err) {
     console.error(err);
@@ -78,59 +96,130 @@ const createUser = async (req, res, next) => {
 };
 
 // ---------- Login user profile ----------
-
 const loginUser = async (req, res, next) => {
+  dotenv.config();
   try {
     const { email, password } = req.body;
 
-    // Trova l'utente
-    const validUser = await User.findOne({ email });
+    // Log per debugging
+    console.log(`Tentativo di login con email: ${email}`);
 
-    if (!validUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Usa il metodo del modello per confrontare la password
-    // const validPassword = await user.comparePassword({ password });
-    const validPassword = bcryptjs.compare(password, validUser.password);
-    if (!validPassword) {
-      return res.status(401).json({
-        message: "Wrong credentials. Please check your email and password.",
+    // Verifica campi obbligatori
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email e password sono richiesti",
       });
     }
 
-    // Opzionale: aggiungi la verifica dell'email
-    if (!validUser.isVerified) {
+    // Verifica esistenza dell'utente
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log(`User non trovato con email: ${email}`);
+      return res
+        .status(404)
+        .json({ success: false, message: "User non trovato" });
+    }
+
+    // log per il debugging
+    console.log(`User trovato: ${user._id}`);
+
+    // Verifica password esistente
+    if (!user.password) {
+      console.error(`User ${user._id} non ha una password salvata!`);
+      return res.status(500).json({
+        success: false,
+        message: "Errore nei dati dell'account",
+      });
+    }
+
+    // Mostra i primi caratteri della password hashata per debug
+    console.log(
+      `Password hash nel DB (primi 10 caratteri): ${user.password.substring(
+        0,
+        10
+      )}...`
+    );
+
+    // Confronto password
+    let validPassword = false;
+
+    try {
+      // Più log per diagnostica
+      console.log(`Lunghezza password fornita: ${password.length}`);
+      validPassword = await bcrypt.compare(password, user.password);
+      console.log(`Risultato verifica password: ${validPassword}`);
+    } catch (bcryptError) {
+      console.error("Errore bcrypt dettagliato:", bcryptError);
+      return res.status(500).json({
+        success: false,
+        message: "Errore nella verifica delle credenziali",
+        error: bcryptError.message,
+      });
+    }
+
+    if (!validPassword) {
+      // In sviluppo, potresti voler aggiungere più dettagli
+      console.log(`Verifica password fallita per user con id: ${user._id}`);
       return res.status(401).json({
-        message:
-          "Email not verified. Please check your email for verification instructions.",
+        success: false,
+        message: "Credenziali errate",
+      });
+    }
+
+    // // Usa il metodo del modello per confrontare la password
+    // const validPassword = await bcrypt.compare(password, user.password);
+    // console.log(`Risultato verifica password: ${validPassword}`);
+    // if (!validPassword) {
+    //   console.log(`Verifica password fallita per user con id: ${user._id}`);
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: "Credenziali errate",
+    //   });
+    // }
+
+    // aggiunta la verifica dell'email
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: "Email non verificata. Controlla la tua casella di posta.",
       });
     }
 
     // Generate JWT token for authentication
-    const tokenPayload = generateTokenPayload(validUser);
-
-    const token = jwt.sign(tokenPayload, JWT_SECRET);
+    const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
+    const tokenPayload = generateTokenPayload(user);
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "1h" });
     console.log("Token: ", token);
-    const { password: hashedPassword, ...rest } = validUser._doc;
+
+    // Prepara dati utente (escludi password)
+    const { password: hashedPassword, ...rest } = user._doc;
     // Calcola la scadenza del token per il client
     const expiryDate = new Date(Date.now() + 60 * 60 * 1000); // 1 ora
 
     // Opzionale: puoi includere più informazioni utente nella risposta
-    const { password: removed, ...userData } = validUser._doc;
+    const { password: removed, ...userData } = user._doc;
 
     res
       .cookie("access_token", token, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "None",
         expires: expiryDate,
       })
       .status(200)
-      .json({ user: rest, token, expiration: expiryDate.getTime() });
+      .json({
+        success: true,
+        message: "Login effettuato con successo",
+        user: rest,
+        token,
+        expiration: expiryDate.getTime(),
+      });
   } catch (err) {
-    next(errorHandler(500, "Internal Server Error"));
+    next(errorHandler(500, "Errore interno del server"));
     console.log(err);
+    console.log("🔴 SERVER RESPONSE:", error.response?.status); // sarà 401
+    console.log("📨 SERVER MESSAGE:", error.response?.data?.message); // importante!
   }
 };
 
@@ -167,18 +256,12 @@ const updateUser = async (req, res, next) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {
-      firstName,
-      email,
-      // password,
-      // confirmPassword,
-      phoneNumber,
-      profilePicture,
-    } = req.body;
-    // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    const { name, firstName, lastName, email, phoneNumber, profilePicture } =
+      req.body;
 
     const updateFields = {};
 
+    if (name) updateFields.name = name;
     if (firstName) updateFields.firstName = firstName;
     if (lastName) updateFields.lastName = lastName;
 
@@ -213,6 +296,65 @@ const updateUser = async (req, res, next) => {
   }
 };
 
+// Funzione dedicata per il cambio password
+const changePassword = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, "You can change only your password"));
+  }
+
+  try {
+    const { currentPassword, password, confirmPassword } = req.body;
+
+    // Verifica campi obbligatori
+    if (!currentPassword || !password || !confirmPassword) {
+      return next(errorHandler(400, "All password fields are required"));
+    }
+
+    // Verifica corrispondenza password
+    if (password !== confirmPassword) {
+      return next(
+        errorHandler(400, "New password and confirmation do not match")
+      );
+    }
+
+    // Verifica requisiti password
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    if (!passwordRegex.test(password)) {
+      return next(
+        errorHandler(
+          400,
+          "Password must contain at least one lowercase letter, one uppercase letter, and one number"
+        )
+      );
+    }
+
+    // Verifica password attuale
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    const isCorrectPassword = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isCorrectPassword) {
+      return next(errorHandler(401, "Current password is incorrect"));
+    }
+
+    // Aggiorna password
+    user.password = bcrypt.hashSync(password, 10);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    next(errorHandler(500, "Error changing password"));
+  }
+};
+
 const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
     return next(errorHandler(401, "You can delete only your account"));
@@ -233,5 +375,6 @@ module.exports = {
   loginUser,
   getUserProfile,
   updateUser,
+  changePassword,
   deleteUser,
 };
