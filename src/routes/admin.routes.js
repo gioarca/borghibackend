@@ -69,7 +69,7 @@ router.post(
 );
 
 // User verification
-router.post("/verify-email/:token", (req, res, next) =>
+router.get("/verify-email/:token", (req, res, next) =>
   verifyEmail(req, res, next, Admin)
 );
 router.post("/verify-password", verifyToken, (req, res, next) =>
