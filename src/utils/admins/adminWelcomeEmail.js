@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
-require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config();
 
 const sendWelcomeEmail = async (adminEmail, token) => {
   try {
@@ -24,7 +25,7 @@ const sendWelcomeEmail = async (adminEmail, token) => {
     const mailOptions = {
       from: process.env.GMAIL,
       to: adminEmail,
-      subject: "Vicus: Admin - Verifica la tua Email",
+      subject: "Vicus: Sei quasi un admin - Verifica la tua Email",
       html: `
             <p>Benvenuto in Vicus! Clicca <a href="${verifyEmailLink}">qui</a> per verificare la tua email e diventare un amministratore.</p>
         `,

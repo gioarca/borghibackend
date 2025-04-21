@@ -1,17 +1,17 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
-
 dotenv.config();
 
 const sendUserAuthEmail = async (userEmail, token) => {
   try {
+    // Create a nodemailer transporter using Gmail service
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
       auth: {
-        user: "borghisud@gmail.com",
+        user: process.env.GMAIL,
         pass: process.env.GMAIL_PSW_APP,
       },
     });
@@ -25,7 +25,7 @@ const sendUserAuthEmail = async (userEmail, token) => {
     const mailOptions = {
       from: process.env.GMAIL,
       to: userEmail,
-      subject: "Vicus: User - Verifica la tua Email",
+      subject: "Vicus: Benvenuto! - Verifica la tua Email",
       html: `<p>Benvenuto in Vicus! Clicca <a href="${verifyEmailLink}">qui</a> per verificare la tua email ed entrare nella piattaforma! :)</p>`,
     };
 
