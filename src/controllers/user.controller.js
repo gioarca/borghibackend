@@ -167,17 +167,6 @@ const loginUser = async (req, res, next) => {
       });
     }
 
-    // // Usa il metodo del modello per confrontare la password
-    // const validPassword = await bcrypt.compare(password, user.password);
-    // console.log(`Risultato verifica password: ${validPassword}`);
-    // if (!validPassword) {
-    //   console.log(`Verifica password fallita per user con id: ${user._id}`);
-    //   return res.status(401).json({
-    //     success: false,
-    //     message: "Credenziali errate",
-    //   });
-    // }
-
     // aggiunta la verifica dell'email
     if (!user.isVerified) {
       return res.status(401).json({

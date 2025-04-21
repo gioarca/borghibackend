@@ -19,7 +19,7 @@ const {
 const {
   cloudinaryMiddleware,
   verifyToken,
-} = require("../middleware/authMiddleware.js");
+} = require("../middleware/auth.middleware.js");
 
 // ---------- User Routes ----------
 // User registration

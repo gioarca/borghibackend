@@ -23,7 +23,7 @@ const {
   verifyToken,
   cloudinaryMiddleware,
   verifyAdmin,
-} = require("../middleware/authMiddleware.js");
+} = require("../middleware/auth.middleware.js");
 
 // ---------- Admin Routes ----------
 // Admin registration
