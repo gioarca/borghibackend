@@ -139,21 +139,10 @@ const deleteBorgo = async (req, res) => {
   }
 };
 
-const getExperience = async (req, res) => {
-  try {
-    const { _id } = req.params;
-    const experience = await Borgo.getExperiencesByBorgoId(_id);
-    res.status(200).json(experience);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-};
-
 module.exports = {
   createBorgo,
   getBorgo,
   getBorghi,
-  getExperience,
   updateBorgo,
   deleteBorgo,
   loadMoreBorghi,

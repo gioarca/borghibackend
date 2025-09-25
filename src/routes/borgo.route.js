@@ -5,7 +5,6 @@ const {
   createBorgo,
   getBorgo,
   getBorghi,
-  getExperience,
   updateBorgo,
   deleteBorgo,
   loadMoreBorghi,
@@ -13,7 +12,6 @@ const {
 
 router.post("/", createBorgo);
 router.get("/:_id", getBorgo); // ricerca per nome o per _id
-router.get("/:_id/experience", getExperience); // ricerca per nome o per _id
 router.get("/", getBorghi);
 router.get("/", loadMoreBorghi);
 router.put("/:_id", updateBorgo);

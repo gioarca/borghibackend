@@ -12,14 +12,14 @@ const sendUserAuthEmail = async (userEmail, token) => {
       secure: true,
       auth: {
         user: process.env.GMAIL,
-        pass: process.env.GMAIL_PSW_APP,
+        pass: process.env.GMAIL_PSW,
       },
     });
 
     const baseURL =
       process.env.NODE_ENV === "development"
         ? "http://localhost:5173"
-        : "https://vicus.netlify.app";
+        : "https://vicuss.netlify.app";
     const verifyEmailLink = `${baseURL}/user/verify-email/${token}`;
 
     const mailOptions = {

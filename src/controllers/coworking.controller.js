@@ -1,29 +1,29 @@
 const Model = require("mongoose");
 const { error } = require("console");
-const Experience = require("../models/experience.model");
+const Coworking = require("../models/coworking.model");
 
 // Endpoint per aggiungere un'esperienza
-const createExperience = async (req, res) => {
+const createCoworking = async (req, res) => {
   try {
-    const experience = await Experience.create(req.body);
-    res.status(200).json({ success: true, data: experience });
+    const coworking = await Coworking.create(req.body);
+    res.status(200).json({ success: true, data: coworking });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
 
-const getExperience = async (req, res) => {
+const getCoworking = async (req, res) => {
   try {
     const { _id } = req.params;
-    const experience = await Experience.findById(_id);
-    res.status(200).json(experience);
+    const coworking = await Coworking.findById(_id);
+    res.status(200).json(coworking);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
 
-// Endopoint per aggiornare un'esperienza
-const updateExperience = async (req, res) => {
+// Endopoint per aggiornare un coworking
+const updateCoworking = async (req, res) => {
   try {
     const { _id } = req.params;
     const {
@@ -42,7 +42,7 @@ const updateExperience = async (req, res) => {
       airport,
       coworking,
     } = req.body;
-    const experience = await Experience.findByIdAndUpdate(
+    const Coworking = await Coworking.findByIdAndUpdate(
       _id,
       {
         name,
@@ -62,39 +62,39 @@ const updateExperience = async (req, res) => {
       },
       { new: true }
     );
-    if (!experience) {
-      return res.status(404).json({ message: "Epxerience not found" });
+    if (!Coworking) {
+      return res.status(404).json({ message: "coworking not found" });
     }
 
     if (!_id) {
-      return res.status(400).json({ error: "Epxerience ID is required" });
+      return res.status(400).json({ error: "coworking ID is required" });
     }
 
-    const updateExperience = await Experience.findById(_id);
-    res.status(200).json(updateExperience);
+    const updateCoworking = await Coworking.findById(_id);
+    res.status(200).json(updateCoworking);
   } catch (error) {
-    console.error("Error updating Experience:", error);
+    console.error("Error updating Coworking:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 // Endopoint per cancellare un'esperienza
-const deleteExperience = async (req, res) => {
+const deleteCoworking = async (req, res) => {
   try {
     const { _id } = req.params;
-    const experience = await Experience.findByIdAndDelete(_id);
-    if (!experience) {
-      return res.status(404).json({ message: "experience not found!" }); // aggiunto un return
+    const Coworking = await Coworking.findByIdAndDelete(_id);
+    if (!Coworking) {
+      return res.status(404).json({ message: "Coworking not found!" }); // aggiunto un return
     }
-    res.status(200).json({ message: "experience deleted successfully" });
+    res.status(200).json({ message: "Coworking deleted successfully" });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
 
 module.exports = {
-  createExperience,
-  getExperience,
-  deleteExperience,
-  updateExperience,
+  createCoworking,
+  getCoworking,
+  deleteCoworking,
+  updateCoworking,
 };

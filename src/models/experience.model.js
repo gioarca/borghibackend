@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const experienceSchema = new Schema({
-  borgoId: {
-    type: String,
-  },
   title: {
     type: String,
   },
@@ -23,11 +20,11 @@ const experienceSchema = new Schema({
   category: {
     type: String,
   },
-  availability: {
-    type: Date,
-  },
+  // availability: {
+  //   type: Date,
+  // },
 });
 
-const Experience = mongoose.model("Borgo", experienceSchema);
+const Experience = mongoose.model("Experience", experienceSchema);
 
 module.exports = Experience;

@@ -45,11 +45,36 @@ const adminRoutes = require("./routes/admin.routes.js");
 const userRoutes = require("./routes/user.routes.js");
 const authRoutes = require("./routes/auth.routes.js");
 const borgoRoute = require("./routes/borgo.route.js");
+const experienceRoutes = require("./routes/experience.routes.js");
+const coworkingRoutes = require("./routes/coworking.routes.js");
 
 app.use("/", authRoutes);
 app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
 app.use("/borghi", borgoRoute);
+app.use("/borghi/:_id/experience", experienceRoutes);
+app.use("/borghi/:_id/coworking", coworkingRoutes);
+
+// Endpoint per ottenere traduzioni
+app.get("/:lang", async (req, res) => {
+  const { lang } = req.params;
+  if (!["it", "en"].includes(lang)) {
+    return res.status(400).json({ error: "Lingua non supportata" });
+  }
+
+  try {
+    const translations = await Translation.find({});
+    const formatted = {};
+
+    translations.forEach((t) => {
+      formatted[t.key] = t[lang];
+    });
+
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ error: "Errore server" });
+  }
+});
 
 // Handler per route non trovate
 app.use((req, res) => {
