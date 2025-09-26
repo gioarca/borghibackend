@@ -11,7 +11,7 @@ const {
 } = require("../controllers/borgo.controller.js");
 
 router.post("/", createBorgo);
-router.get("/:_id", getBorgo); // ricerca per nome o per _id
+router.get("/:param", getBorgo); // ricerca per nome o per _id
 router.get("/", getBorghi);
 router.get("/", loadMoreBorghi);
 router.put("/:_id", updateBorgo);

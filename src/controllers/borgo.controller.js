@@ -1,4 +1,5 @@
 const Model = require("mongoose");
+const mongoose = require("mongoose");
 const { error } = require("console");
 const Borgo = require("../models/borgo.model");
 
@@ -13,13 +14,49 @@ const createBorgo = async (req, res) => {
 };
 
 // Endpoint per cercare un borgo inserito filtrarlo per nome e id
+// const getBorgo = async (req, res) => {
+//   try {
+//     let borgo;
+
+//     // Se non trovato per ID o non è un ObjectId -> cerca per nome
+//     if (!borgo) {
+//       borgo = await Borgo.findOne({
+//         nome: { $regex: new RegExp(value, "i") }, // case-insensitive
+//       });
+//     }
+
+//     if (!borgo) {
+//       return res.status(404).json({ message: "Borgo non trovato" });
+//     }
+//     const { name } = req.params;
+//     const { value } = req.params;
+//     // const borgo = await Borgo.findOne(name);
+
+//     res.status(200).json(borgo);
+//   } catch (error) {
+//     res.status(500).send({ error: error.message });
+//   }
+// };
+
 const getBorgo = async (req, res) => {
   try {
-    const { _id } = req.params;
-    const borgo = await Borgo.findById(_id);
+    const { param } = req.params;
+
+    // Se è un ObjectId valido → cerca per id
+    if (/^[0-9a-fA-F]{24}$/.test(param)) {
+      const borgo = await Borgo.findById(param);
+      if (!borgo) return res.status(404).json({ message: "Borgo non trovato" });
+      return res.json(borgo);
+    }
+
+    // Altrimenti cerca per nome (case insensitive)
+    const borgo = await Borgo.findOne({ name: new RegExp(param, "i") });
+    if (!borgo) return res.status(404).json({ message: "Borgo non trovato" });
+
+    // Risposta OK
     res.status(200).json(borgo);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
