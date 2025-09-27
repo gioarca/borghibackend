@@ -13,6 +13,7 @@ const {
 const {
   passwordReset,
   passwordResetRequest,
+  requestNewVerificationEmail,
   verifyPassword,
   verifyEmail,
 } = require("../controllers/auth.controller.js");
@@ -56,6 +57,11 @@ router.post(
 // User verification
 router.post("/verify-email/:token", (req, res, next) =>
   verifyEmail(req, res, next, User)
+);
+
+// User verification email resend
+router.post("/resend-verification", (req, res, next) =>
+  requestNewVerificationEmail(req, res, next, User)
 );
 
 // Password verification
