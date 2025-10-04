@@ -47,6 +47,8 @@ const authRoutes = require("./routes/auth.routes.js");
 const borgoRoute = require("./routes/borgo.route.js");
 const experienceRoutes = require("./routes/experience.routes.js");
 const coworkingRoutes = require("./routes/coworking.routes.js");
+const accommodationRoutes = require("./routes/accommodation.routes.js");
+const chatRoutes = require("./routes/chat.js");
 
 app.use("/", authRoutes);
 app.use("/user", userRoutes);
@@ -54,6 +56,8 @@ app.use("/admin", adminRoutes);
 app.use("/borghi", borgoRoute);
 app.use("/borghi/:_id/experience", experienceRoutes);
 app.use("/borghi/:_id/coworking", coworkingRoutes);
+app.use("/borghi/:value/accommodation", accommodationRoutes);
+app.use("/chat", chatRoutes);
 
 // Endpoint per ottenere traduzioni
 app.get("/:lang", async (req, res) => {
