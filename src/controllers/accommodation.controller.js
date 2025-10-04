@@ -7,8 +7,8 @@ const Borgo = require("../models/borgo.model.js");
 // Endpoint per aggiungere un alloggio
 const createAccommodation = async (req, res) => {
   try {
-    const { value } = req.params; // <-- prende il parametro corretto dalla rotta
-    const borgoId = value;
+    const { param } = req.params; // <-- prende il parametro corretto dalla rotta
+    const borgoId = param;
     console.log("borgoId ricevuto:", borgoId);
 
     if (!borgoId || !mongoose.Types.ObjectId.isValid(borgoId)) {
@@ -45,26 +45,54 @@ const getAccommodation = async (req, res) => {
     }
 
     // Altrimenti cerca per nome (case insensitive)
-    const borgo = await Accommodation.findOne({ name: new RegExp(param, "i") });
-    if (!borgo) return res.status(404).json({ message: "Borgo non trovato" });
+    const accommodation = await Accommodation.findOne({
+      name: new RegExp(param, "i"),
+    });
+    if (!accommodation)
+      return res.status(404).json({ message: "Borgo non trovato" });
 
     // Risposta OK
-    res.status(200).json(borgo);
+    res.status(200).json(accommodation);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Endpoint per mostrare gli alloggi con paginazione
+// Endpoint per mostrare gli alloggi di un borgo
 const getAccommodations = async (req, res) => {
   try {
-    const { borgoId } = req.params;
+    console.log("req.params:", req.params);
+    const { param } = req.params;
+    let borgoId;
 
-    if (!mongoose.Types.ObjectId.isValid(borgoId))
-      return res.status(400).json({ error: "borgoId non valido" });
+    // Determina borgoId (da ObjectId o da nome)
+    if (/^[0-9a-fA-F]{24}$/.test(param)) {
+      borgoId = param;
+    } else {
+      const borgo = await Borgo.findOne({
+        name: new RegExp(`^${param}$`, "i"),
+      });
+      if (!borgo) {
+        return res.status(404).json({ error: "Borgo non trovato" });
+      }
+      borgoId = borgo._id;
+    }
 
-    const accommodations = await Accommodation.find({ borgo: borgoId });
-    res.status(200).json({ success: true, data: accommodations });
+    // Trova borgo e accommodations
+    const [borgo, accommodations] = await Promise.all([
+      Borgo.findById(borgoId),
+      Accommodation.find({ borgo: borgoId }),
+    ]);
+
+    if (!borgo) {
+      return res.status(404).json({ error: "Borgo non trovato" });
+    }
+
+    res.status(200).json({
+      success: true,
+      borgo: borgo,
+      accomodation: accommodations,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

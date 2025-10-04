@@ -56,7 +56,7 @@ app.use("/admin", adminRoutes);
 app.use("/borghi", borgoRoute);
 app.use("/borghi/:_id/experience", experienceRoutes);
 app.use("/borghi/:_id/coworking", coworkingRoutes);
-app.use("/borghi/:value/accommodation", accommodationRoutes);
+app.use("/borghi/:param/accommodation", accommodationRoutes);
 app.use("/chat", chatRoutes);
 
 // Endpoint per ottenere traduzioni
