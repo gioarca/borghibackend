@@ -59,10 +59,10 @@ app.use("/borghi/:_id/coworking", coworkingRoutes);
 app.use("/borghi/:param/accommodation", accommodationRoutes);
 app.use("/chat", chatRoutes);
 
-// Endpoint per ottenere traduzioni
-app.get("/:lang", async (req, res) => {
+// Endpoint per ottenere traduzioni (API più chiara e non ambigua)
+app.get("/translations/:lang", async (req, res) => {
   const { lang } = req.params;
-  if (!["it", "en"].includes(lang)) {
+  if (!SUPPORTED_LANGS.includes(lang)) {
     return res.status(400).json({ error: "Lingua non supportata" });
   }
 
@@ -71,11 +71,13 @@ app.get("/:lang", async (req, res) => {
     const formatted = {};
 
     translations.forEach((t) => {
-      formatted[t.key] = t[lang];
+      // assume che il documento abbia campi: key, it, en, de
+      formatted[t.key] = t[lang] ?? t.it ?? ""; // fallback su it se mancante
     });
 
     res.json(formatted);
   } catch (error) {
+    console.error("Errore caricando traduzioni:", error);
     res.status(500).json({ error: "Errore server" });
   }
 });
